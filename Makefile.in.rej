@@ -1,0 +1,11 @@
+--- Makefile.in	2010-03-24 01:17:36.677662221 +0900
++++ Makefile.in	2010-03-24 01:11:43.573667895 +0900
+@@ -564,7 +580,7 @@
+ install-recursive: force
+ 	for i in $(SUBDIRS); do ( cd $$i; $(MAKE) install; ) done
+ 
+-clean:
++clean: aodv-uu-clean
+ 	$(RM) $(CLEANFILES)
+ 
+ AUTOCONF_GEN = tcl/lib/ns-autoconf.tcl

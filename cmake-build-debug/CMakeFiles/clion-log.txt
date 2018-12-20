@@ -1,0 +1,6 @@
+/home/buaa/clion-2017.2.3/bin/cmake/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /home/buaa/ns-allinone-2.35/ns-2.35
+CMake Error at CMakeLists.txt:1 (cmake_minimum_required):
+  CMake 3.12 or higher is required.  You are running version 3.8.2
+
+
+-- Configuring incomplete, errors occurred!

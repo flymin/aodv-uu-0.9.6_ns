@@ -1,0 +1,13 @@
+--- tcl/lib/ns-lib.tcl	2010-03-24 01:17:37.417666577 +0900
++++ tcl/lib/ns-lib.tcl	2010-03-23 23:55:27.409660240 +0900
+@@ -633,6 +633,10 @@
+ 		    AOMDV {
+ 			    set ragent [$self create-aomdv-agent $node]
+ 		    }
++			 # AODV-UU routing agent
++			AODVUU {
++				$self at 0.0 "$node start-aodv"
++			}
+ 		    TORA {
+ 			    Simulator set IMEPFlag_ ON
+ 			    set ragent [$self create-tora-agent $node]

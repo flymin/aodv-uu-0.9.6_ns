@@ -1,0 +1,14 @@
+--- trace/cmu-trace.cc	2010-03-24 01:17:36.661691794 +0900
++++ trace/cmu-trace.cc	2010-03-23 23:57:39.485679249 +0900
+@@ -51,6 +51,11 @@
+ #include <tora/tora_packet.h> //TORA
+ #include <imep/imep_spec.h>         // IMEP
+ #include <aodv/aodv_packet.h> //AODV
++
++#ifdef AODV_UU
++#include <aodv-uu/ns/aodv-uu.h> // AODV-UU
++#endif /* AODV_UU */
++
+ // AOMDV patch
+ #include <aomdv/aomdv_packet.h>
+ #include <cmu-trace.h>
