@@ -48,4 +48,5 @@ indep-utils/webtrace-conv/ucb/ucb-tr-stat
 aodv-uu-0.9.6/endian
 aodv-uu-0.9.6/endian.h
 common/ptypes2tcl
-
+*.tr
+*.nam

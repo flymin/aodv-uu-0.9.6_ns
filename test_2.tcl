@@ -9,8 +9,8 @@ set val(ant)            Antenna/OmniAntenna        ;# antenna model
 set val(ifqlen)         50                         ;# max packet in ifq
 set val(nn)             4                          ;# number of mobilenodes
 set val(ni)		3
-set val(x)		500
-set val(y)		500
+set val(x)		1000
+set val(y)		1000
 
 # Initialize Global Variables
 set ns_		[new Simulator]
@@ -74,22 +74,23 @@ $ns_ initial_node_pos $node_(0) 10
 $node_(1) set X_ 55.0
 $node_(1) set Y_ 20.0
 $node_(1) set Z_ 0.0
-$ns_ initial_node_pos $node_(1) 20
+$ns_ initial_node_pos $node_(1) 10
 
 $node_(2) set X_ 105.0
 $node_(2) set Y_ 20.0
 $node_(2) set Z_ 0.0
-$ns_ initial_node_pos $node_(2) 30
+$ns_ initial_node_pos $node_(2) 10
 
 $node_(3) set X_ 155.0
 $node_(3) set Y_ 20.0
 $node_(3) set Z_ 0.0
-$ns_ initial_node_pos $node_(3) 40
+$ns_ initial_node_pos $node_(3) 10
 # set node movement
 set god_ [God instance]
 $ns_ at 5.0 "$node_(1) setdest 55.0 400.0 60.0"
 $ns_ at 5.0 "$node_(3) setdest 400.0 20.0 60.0"
-$ns_ at 20.0 "$node_(1) setdest 400.0 200.0 60.0"
+$ns_ at 15.0 "$node_(0) setdest 5.0 900.0 60.0"
+$ns_ at 20.0 "$node_(1) setdest 900.0 100.0 60.0"
 # Setup traffic flow between nodes
 # TCP connections between node_(0) and node_(1)
 

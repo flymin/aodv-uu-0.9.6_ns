@@ -467,8 +467,8 @@ void NS_CLASS sendPacket(Packet *p, struct in_addr next_hop, double delay)
             for (int i = 0; i < nIfaces; ++i) {
                  if(aodv_msg->type == AODV_RREQ||aodv_msg->type == AODV_RRCQ||aodv_msg->type == AODV_RRDQ){
                     ((RREQ *) aodv_msg)->Channel = i;
-					printf("16231214 SEND RREQ: curnode = %d, orig = %d, dest = %d, channel = %d, la = %d\n",
-                	DEV_IFINDEX(ifindex).ipaddr.s_addr,
+					printf("16231214 SEND RREQ at %lf: curnode = %d, orig = %d, dest = %d, channel = %d, la = %d\n",
+						   Scheduler::instance().clock(), DEV_IFINDEX(ifindex).ipaddr.s_addr,
                 	((RREQ*)aodv_msg)->orig_addr, ((RREQ*)aodv_msg)->dest_addr,
                 	((RREQ*)aodv_msg)->Channel, ((RREQ*)aodv_msg)->LA);
                 }
@@ -507,8 +507,8 @@ void NS_CLASS sendPacket(Packet *p, struct in_addr next_hop, double delay)
 		if(aodv_msg->type == AODV_RREP||aodv_msg->type == AODV_RRCP||aodv_msg->type == AODV_RRDP) {
 			channel = ((RREP *)aodv_msg)->Channel;
 	        // output
-	        printf("16231214 SEND RREP: curnode = %d, orig = %d, dest = %d, channel = %d, la = %d\n",
-	            DEV_IFINDEX(ifindex).ipaddr.s_addr,
+	        printf("16231214 SEND RREP at %lf: curnode = %d, orig = %d, dest = %d, channel = %d, la = %d\n",
+				   Scheduler::instance().clock(), DEV_IFINDEX(ifindex).ipaddr.s_addr,
 	        	((RREP*)aodv_msg)->orig_addr, ((RREP*)aodv_msg)->dest_addr,
 	        	((RREP*)aodv_msg)->Channel, ((RREP*)aodv_msg)->LA);
 		}
