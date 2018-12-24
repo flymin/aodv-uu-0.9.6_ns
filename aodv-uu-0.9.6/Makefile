@@ -4,11 +4,11 @@ NS_DIR=ns-2
 
 SRC =	main.c list.c debug.c timer_queue.c aodv_socket.c aodv_hello.c aodv_hello_ack.c\
 	aodv_neighbor.c aodv_timeout.c routing_table.c seek_list.c \
-	aodv_rreq.c aodv_rrep.c aodv_rerr.c nl.c
+	aodv_rreq.c aodv_rrep.c aodv_rerr.c nl.c aodv_rrcq.c aodv_rrcp.c
 
 SRC_NS = 	debug.c list.c timer_queue.c aodv_socket.c aodv_hello.c aodv_hello_ack.c\
 		aodv_neighbor.c aodv_timeout.c routing_table.c seek_list.c \
-		aodv_rreq.c aodv_rrep.c aodv_rerr.c
+		aodv_rreq.c aodv_rrep.c aodv_rerr.c aodv_rrcq.c aodv_rrcp.c
 
 SRC_NS_CPP =	$(NS_DIR)/aodv-uu.cc $(NS_DIR)/packet_queue.cc $(NS_DIR)/packet_input.cc \
 				$(NS_DIR)/armamain.cc $(NS_DIR)/ARMAMath.cc $(NS_DIR)/MAModel.cc $(NS_DIR)/ARMAModel.cc \
@@ -184,7 +184,7 @@ debug.o: aodv_rrep.h aodv_rerr.h debug.h params.h
 timer_queue.o: timer_queue.h defs.h list.h debug.h
 aodv_socket.o: aodv_socket.h defs.h timer_queue.h list.h aodv_rerr.h
 aodv_socket.o: routing_table.h params.h aodv_rreq.h seek_list.h aodv_rrep.h
-aodv_socket.o: aodv_hello.h aodv_hello_ack.h aodv_neighbor.h debug.h
+aodv_socket.o: aodv_hello.h aodv_hello_ack.h aodv_neighbor.h debug.h aodv_rrcq.h aodv_rrcp.h
 aodv_hello.o: aodv_hello.h aodv_hello_ack.h defs.h timer_queue.h list.h aodv_rrep.h
 aodv_hello.o: routing_table.h aodv_timeout.h aodv_rreq.h seek_list.h params.h
 aodv_hello.o: aodv_socket.h aodv_rerr.h debug.h
@@ -195,11 +195,11 @@ aodv_neighbor.o: aodv_neighbor.h defs.h timer_queue.h list.h routing_table.h
 aodv_neighbor.o: aodv_rerr.h aodv_hello.h aodv_hello_ack.h aodv_rrep.h aodv_socket.h params.h
 aodv_neighbor.o: debug.h
 aodv_timeout.o: defs.h timer_queue.h list.h aodv_timeout.h aodv_socket.h
-aodv_timeout.o: aodv_rerr.h routing_table.h params.h aodv_neighbor.h
+aodv_timeout.o: aodv_rerr.h routing_table.h params.h aodv_neighbor.h aodv_rrcq.h aodv_rrcp.h
 aodv_timeout.o: aodv_rreq.h seek_list.h aodv_hello.h aodv_hello_ack.h aodv_rrep.h debug.h nl.h
 routing_table.o: routing_table.h defs.h timer_queue.h list.h aodv_timeout.h
 routing_table.o: aodv_rerr.h aodv_hello.h aodv_hello_ack.h aodv_rrep.h aodv_socket.h params.h
-routing_table.o: debug.h seek_list.h nl.h
+routing_table.o: debug.h seek_list.h nl.h aodv_rrcq.h aodv_rrcp.h
 seek_list.o: seek_list.h defs.h timer_queue.h list.h aodv_timeout.h params.h
 seek_list.o: debug.h
 aodv_rreq.o: aodv_rreq.h defs.h timer_queue.h list.h seek_list.h
@@ -214,3 +214,9 @@ nl.o: defs.h timer_queue.h list.h lnx/kaodv-netlink.h debug.h aodv_rreq.h
 nl.o: seek_list.h routing_table.h aodv_timeout.h aodv_hello.h aodv_hello_ack.h aodv_rrep.h
 nl.o: params.h aodv_socket.h aodv_rerr.h
 locality.o: locality.h defs.h timer_queue.h list.h debug.h
+aodv_rrcq.o: aodv_rreq.h defs.h timer_queue.h list.h seek_list.h aodv_rrcp.h
+aodv_rrcq.o: routing_table.h aodv_rrep.h aodv_timeout.h aodv_socket.h
+aodv_rrcq.o: aodv_rerr.h params.h debug.h locality.h aodv_rrcq.h
+aodv_rrcp.o: aodv_rrcp.h aodv_rrcq.h aodv_rrep.h defs.h timer_queue.h list.h routing_table.h
+aodv_rrcp.o: aodv_neighbor.h aodv_hello.h aodv_timeout.h aodv_socket.h
+aodv_rrcp.o: aodv_rerr.h params.h debug.h

@@ -978,10 +978,42 @@ void CMUTrace::format_aodvuu(Packet *p, int offset) {
         RREP *aodv_rrep = (RREP *) aodv_msg;
         RREP_ack *aodv_rrep_ack = (RREP_ack *) aodv_msg;
         RERR *aodv_rerr = (RERR *) aodv_msg;
+        RRCQ *aodv_rrcq = (RRCQ *) aodv_msg;
+        RRCP *aodv_rrcp = (RRCP *) aodv_msg;
 
         switch (aodv_msg->type) {
 
-        case AODV_RREQ:
+        	case AODV_RRCQ:
+
+					if (pt_->tagged()) {
+						// Tagged format currently not supported
+					} else if (newtrace_) {
+
+						sprintf(pt_->buffer() + offset,
+							"-P aodvuu -Pt 0x%x -Ph %d -Pb %d -Pd %d -Pds %d -Ps %d -Pss %d -Pc RRCQ",
+							aodv_rrcq->type,
+							aodv_rrcq->hcnt,
+							aodv_rrcq->rrcq_id,
+							(nsaddr_t) aodv_rrcq->dest_addr,
+							aodv_rrcq->dest_seqno,
+							(nsaddr_t) aodv_rrcq->orig_addr,
+							aodv_rrcq->orig_seqno);
+
+					} else {
+
+						sprintf(pt_->buffer() + offset,
+							"[0x%x %d %d [%d %d] [%d %d]] (RRCQ)",
+							aodv_rrcq->type,
+							aodv_rrcq->hcnt,
+							ntohl(aodv_rrcq->rrcq_id),
+							(nsaddr_t) aodv_rrcq->dest_addr,
+							aodv_rrcq->dest_seqno,
+							(nsaddr_t) aodv_rrcq->orig_addr,
+							aodv_rrcq->orig_seqno);
+					}
+
+					break;
+		case AODV_RREQ:
 
                 if (pt_->tagged()) {
                         // Tagged format currently not supported
@@ -1118,6 +1150,34 @@ void CMUTrace::format_aodvuu(Packet *p, int offset) {
                 }
 
                 break;
+                case AODV_RRCP:
+				if (pt_->tagged()) {
+					// Tagged format currently not supported
+				} else if (newtrace_) {
+
+					sprintf(pt_->buffer() + offset,
+						"-P aodvuu -Pt 0x%x -Ph %d -Pd %d -Pds %d -Ps %d -Pl %f -Pc %s RRCP",
+						aodv_rrcp->type,
+						aodv_rrcp->hcnt,
+						(nsaddr_t) aodv_rrcp->dest_addr,
+						aodv_rrcp->dest_seqno,
+						(nsaddr_t) aodv_rrcp->orig_addr,
+						(double)aodv_rrcp->lifetime,
+						 "RRCP");
+				} else {
+
+					sprintf(pt_->buffer() + offset,
+						"[0x%x %d [%d %d] [%d] %f] (%s)",
+						aodv_rrcp->type,
+						aodv_rrcp->hcnt,
+						(nsaddr_t) aodv_rrcp->dest_addr,
+						aodv_rrcp->dest_seqno,
+						(nsaddr_t) aodv_rrcp->orig_addr,
+						(double)aodv_rrcp->lifetime,
+						 "RRCP");
+				}
+
+				break;
 
         default:
 

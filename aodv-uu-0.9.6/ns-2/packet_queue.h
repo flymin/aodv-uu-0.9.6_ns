@@ -60,6 +60,15 @@ void packet_queue_destroy();
 int packet_queue_set_verdict(struct in_addr dest_addr, int verdict);
 int packet_queue_garbage_collect(void);
 
+/** added by xujunpeng **/
+struct packet_queue AQ;
+
+void packet_queue_a_add(Packet * p, struct in_addr dest_addr);
+void packet_queue_a_init();
+void packet_queue_a_destroy();
+int packet_queue_set_a_verdict(struct in_addr dest_addr, int verdict);
+int packet_queue_garbage_a_collect(void);
+/** end added **/
 #endif				/* NS_NO_DECLARATIONS */
 
 #endif

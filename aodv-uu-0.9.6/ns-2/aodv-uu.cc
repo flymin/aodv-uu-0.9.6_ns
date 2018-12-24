@@ -23,7 +23,7 @@
 
 #include <string.h>
 #include <assert.h>
-#include <vector>
+#include <vector>				// gaoruiyuan added
 #include "../../common/encap.h"
 #include "aodv-uu.h"
 #include "../../mac/mac-802_11.h"
@@ -147,6 +147,10 @@ tqtimer(this), ifqueue(0)
 
 	INIT_LIST_HEAD(&rreq_records);
 	INIT_LIST_HEAD(&rreq_blacklist);
+	/** added by xujinpeng **/
+    INIT_LIST_HEAD(&rrcq_records);
+    INIT_LIST_HEAD(&rrcq_blacklist);
+	/** added by xujunpeng **/
 	INIT_LIST_HEAD(&seekhead);
 	INIT_LIST_HEAD(&TQ);
 
@@ -159,9 +163,10 @@ tqtimer(this), ifqueue(0)
 	rt_log_timer.used = 0;
 	aodv_socket_init();
 	rt_table_init();
-	nb_table_init();
+	nb_table_init();			// gaoruiyuan added
 	packet_queue_init();
-	hello_start();
+	packet_queue_a_init();		// xujunpeng added
+	hello_start();				// gaoruiyuan added
 
 	// Added by buaa g410
 	nIfaces = 0;
@@ -256,7 +261,7 @@ void NS_CLASS packetFailed(Packet *p)
 	rt_table_t *rt_next_hop, *rt;
 	struct in_addr dest_addr, src_addr, next_hop;
 	packet_t pt = ch->ptype();
-
+    local_repair=1;				// xujunpeng added
 	dest_addr.s_addr = ih->daddr();
 	src_addr.s_addr = ih->saddr();
 	next_hop.s_addr = ch->next_hop();
@@ -293,25 +298,31 @@ void NS_CLASS packetFailed(Packet *p)
 		drop(p, DROP_RTR_MAC_CALLBACK);
 		goto end;
 	}
+    /**  xujunpeng added **/
+    fprintf(stderr,"this is a good job ,failure,local repair is %d \n",local_repair);
 
+	/**  added end **/
 	/* Do local repair? */
-	if (local_repair && rt->hcnt <= MAX_REPAIR_TTL
+	//if (local_repair && rt->hcnt <= MAX_REPAIR_TTL
+	if (local_repair)		// condition changed by xujunpeng
 		/* && ch->num_forwards() > rt->hcnt */
-			) {
+	{
 
 		/* Buffer the current packet */
-		packet_queue_add(p, dest_addr);
-
+		//packet_queue_add(p, dest_addr);
+		/** changed by xunjunpeng **/
+		packet_queue_a_add(p, dest_addr);
+        fprintf(stderr,"-------------doing packet_a_queue----------\n");
+		/** change end **/
 		/* Buffer pending packets from interface queue */
 		interfaceQueue((nsaddr_t) next_hop.s_addr, IFQ_BUFFER);
 
 		/* Mark the route to be repaired */
 		rt_next_hop->flags |= RT_REPAIR;
 		neighbor_link_break(rt_next_hop);
-		rreq_local_repair(rt, src_addr, NULL);
-
+		rrcq_local_repair(rt, src_addr, NULL);
+    ////////////////////////////////define by dormouse
 	} else {
-
 		/* No local repair - just force timeout of link and drop packets */
 		neighbor_link_break(rt_next_hop);
 		drop:

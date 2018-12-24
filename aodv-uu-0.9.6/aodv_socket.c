@@ -41,13 +41,15 @@
 #include "aodv_neighbor.h"
 #include "debug.h"
 #include "defs.h"
-
+/** added by xujunpeng **/
+#include "aodv_rrcq.h"
+#include "aodv_rrcp.h"
+/** end added **/
 #endif                /* NS_PORT */
 
 #ifndef NS_PORT
 #define SO_RECVBUF_SIZE 256*1024
 
-//���յ��İ��ʹ����͵İ����������������е���
 static char recv_buf[RECV_BUF_SIZE];
 static char send_buf[SEND_BUF_SIZE];
 
@@ -195,7 +197,6 @@ void NS_CLASS aodv_socket_init() {
             }
         }
 
-        //�����յ���֮���callback����
         retval = attach_callback_func(DEV_NR(i).sock, aodv_socket_read);
 
         if (retval < 0) {
@@ -209,9 +210,6 @@ void NS_CLASS aodv_socket_init() {
     num_rerr = 0;
 }
 
-/* �յ���֮��֮��ִ�а��Ĵ������,
- * �����յ�������ֱ𴫵ݸ���Ӧ�Ĵ�����
- */
 void NS_CLASS aodv_socket_process_packet(AODV_msg *aodv_msg, int len,
                                          struct in_addr src,
                                          struct in_addr dst,
@@ -242,6 +240,18 @@ void NS_CLASS aodv_socket_process_packet(AODV_msg *aodv_msg, int len,
             //fprintf(stderr, "AODV_HELLO_ACK\n");
             hello_ack_process((HELLO_ACK *) aodv_msg, len, ifindex);
             break;
+        /**** added by xujunpeng ***/
+        case AODV_RRCQ: //路由恢复请求
+            //fprintf(stderr, "gggggggg\n");
+            DEBUG(LOG_DEBUG, 0, "Received RRCQ");
+            rrcq_process((RRCQ *) aodv_msg, len, src, dst, ttl, ifindex);
+            break;
+        case AODV_RRCP: //路由恢复回复
+            //fprintf(stderr, "aaaaaaag\n");
+            DEBUG(LOG_DEBUG, 0, "Received RRCP");
+            rrcp_process((RRCP *) aodv_msg, len, src, dst, ttl, ifindex);
+            break;
+        /*** end added ****/
         case AODV_RREQ:
             neighbor_add(aodv_msg, src, ifindex);
             rreq_process((RREQ *) aodv_msg, len, src, dst, ttl, ifindex);
@@ -308,8 +318,6 @@ void NS_CLASS recvAODVUUPacket(Packet * p)
 }
 #else
 
-/* ���ݰ����ݵĽ����ͷ�������
- */
 static void aodv_socket_read(int fd) {
     struct in_addr src, dst;
     int i, len, ttl = -1;

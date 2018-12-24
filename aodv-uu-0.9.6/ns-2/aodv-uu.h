@@ -77,6 +77,10 @@ class AODVUU;
 #include "../aodv_rerr.h"
 #include "../aodv_rrep.h"
 #include "../aodv_rreq.h"
+/** added by xujunpeng **/
+#include "../aodv_rrcq.h"
+#include "../aodv_rrcp.h"
+/** added by xujunpeng **/
 #include "../aodv_socket.h"
 #include "../aodv_timeout.h"
 #include "../debug.h"
@@ -170,6 +174,13 @@ protected:
 
 #undef _AODV_RREP_H
 #include "../aodv_rrep.h"
+
+/** added by xujunpeng **/
+#undef _AODV_RRCQ_H
+#include "../aodv_rrcq.h"
+#undef _AODV_RRCP_H
+#include "../aodv_rrcp.h"
+/** end added **/
 
 #undef _AODV_RREQ_H
 #include "../aodv_rreq.h"
@@ -267,6 +278,13 @@ protected:
 	/* From aodv_rreq.c */
 	list_t rreq_records;
 	list_t rreq_blacklist;
+
+    //////////////////////addd by dormouse
+
+    list_t rrcq_records;
+    list_t rrcq_blacklist;
+
+    //////////////////////add by domrouse
 
 	/* From seek_list.c */
 	list_t seekhead;
