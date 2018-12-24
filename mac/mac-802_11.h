@@ -394,6 +394,8 @@ public:
     int getNoiseFlag();
     double getNoisePower();
     int getBandWidth();	// added by gaoruiyuan
+    int getWorkMode();	// added by gaoruiyuan
+    void startNoiseWorkMode(int channel); // gaoruiyuan added
     // Added by Sushmita to support event tracing
     void trace_event(char *, Packet *);
     EventTrace *et_;

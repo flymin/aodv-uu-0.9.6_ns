@@ -584,6 +584,7 @@ int NS_CLASS command(int argc, const char *const *argv)
             int temp_ = atoi(argv[2]);
             maclist[temp_] = (Mac802_11 *) TclObject::lookup(argv[3]);
             if (maclist[temp_]) {
+		maclist[temp_]->startNoiseWorkMode(temp_);
                 return TCL_OK;
             } else {
                 return TCL_ERROR;

@@ -189,15 +189,17 @@ void NS_CLASS cal_cost(void *arg) {
 
 /************* this function added by czy 16071064 **************/
 int NS_CLASS pre_stability() {
-    int sum0, sum1, sum2;
+    int sum0 = 0, sum1 = 0, sum2 = 0;
     int stable_result;
     double power0, power1, power2, power;
-    double flag;
-    double neighbor_change_rate;
-    double channel_use_rate;
-    flag = maclist[0]->getNoiseFlag() + maclist[1]->getNoiseFlag() + maclist[2]->getNoiseFlag();
-    flag = (3 - flag) / 3;
-    fprintf(stderr, "| flag = %.2lf", flag);
+    float flag;
+    float neighbor_change_rate;
+    float channel_use_rate;
+    flag = 	(float)(maclist[0]->getNoiseFlag()) + 
+		(float)(maclist[1]->getNoiseFlag()) + 
+		(float)(maclist[2]->getNoiseFlag());
+    flag = (3.0 - flag) / 3.0;
+    fprintf(stderr, "| flag = %.2f", flag);
     //get the flag msg from mac level
 
     power0 = maclist[0]->getNoisePower() * 1.00e10;
@@ -206,7 +208,7 @@ int NS_CLASS pre_stability() {
     fprintf(stderr, "| power1 = %.5f", power1);
     power2 = maclist[2]->getNoisePower() * 1.00e10;
     fprintf(stderr, "| power2 = %.5f", power2);
-    power = power0 + power1 + power2 == 0 ? 0.0 : (power0 * power0 + power1 * power1 + power2 * power2) /
+    power = (power0 + power1 + power2 <= 0.0001) ? 0.0 : (power0 * power0 + power1 * power1 + power2 * power2) /
                                                   ((power0 + power1 + power2) * (power0 + power1 + power2));
 
     fprintf(stderr, "| power = %.2f", power);
@@ -228,6 +230,8 @@ int NS_CLASS pre_stability() {
             prev = curr->next;
             stabcur = (stability_t *) curr;
             stabprev = (stability_t *) prev;
+            fprintf(stderr, " %d", stabcur->status);
+            fprintf(stderr, "%d", stabprev->status);
             if (stabcur->status == 1 && stabprev->status == 1)
                 sum0++; //两个周期内节点都稳定
             else {
@@ -235,18 +239,21 @@ int NS_CLASS pre_stability() {
                 if (stabcur->status == 1)
                     sum2++;//sum3表示当前可用的信道数
             }
+            fprintf(stderr, " ");
         }
     }
     neighbor_change_rate = (sum0 + sum1 == 0) ? 0.0 : ((float)sum0 / (float)(sum0 + sum1)) * 1.0;
     // gaoruiyuan changed to float
     //neighbor_change_rate 就是邻居变化情况的信息
-    (sum2 >= 10) ? channel_use_rate = 1 : channel_use_rate = (float)sum2 / 10; //可用信道数的信息
+    channel_use_rate = (sum2 >= 10) ? 1.0 : (float)sum2 / 10.0; //可用信道数的信息
     // gaoruiyuan changed to float
     stable_result = svm_predict_main(neighbor_change_rate, channel_use_rate, flag, power);
-    fprintf(stderr, "| sum0 = %.2f", sum0);
-    fprintf(stderr, "| sum1 = %.2f", sum1);
-    fprintf(stderr, "| sum2 = %.2f", sum2);
-    fprintf(stderr, "| stable_result = %.2f\n", stable_result);
+    fprintf(stderr, "| sum0 = %d", sum0);
+    fprintf(stderr, "| sum1 = %d", sum1);
+    fprintf(stderr, "| sum2 = %d", sum2);
+    fprintf(stderr, "| channel_use_rate = %.2f", channel_use_rate);
+    fprintf(stderr, "| neighbor_change_rate = %.2f", neighbor_change_rate);
+    fprintf(stderr, "| stable_result = %d\n", stable_result);
     return stable_result;
 }
 
@@ -507,7 +514,7 @@ void NS_CLASS hello_process(HELLO *hello, int hellolen, unsigned int ifindex) {
 
     /* added by chenzeyin */
     stability_t *new_item = (stability_t *)malloc(sizeof(stability_t));
-    new_item->status = ((int)((hello->res2) == 2))? stable:unstable;
+    new_item->status = ((int)(hello->res2) == 1)? stable:unstable;
     list_add(&(nb->data_link->stability), &(new_item->l));
     fprintf(stderr, "add new stability %d\n", new_item->status);
     /**********************/

@@ -325,9 +325,6 @@ Mac802_11::command(int argc, const char*const* argv)
             workMode = atoi(argv[2]);
             noiseChannel = atoi(argv[3]);
             noiseInterval = 0.01;
-            if (workMode < 0) {
-                mhNoise_.start(noiseInterval);
-            }
             return TCL_OK;
         }
     }
@@ -3378,6 +3375,19 @@ Mac802_11::getNoisePower()
 /* End buaa g410 */
 
 /*** edited by gaoruiyuan ****/
+int
+Mac802_11::getWorkMode()
+{
+	return workMode;
+}
+
+void Mac802_11::startNoiseWorkMode(int channel)
+{
+	if(channel == noiseChannel && workMode < 0){
+		mhNoise_.start(noiseInterval);
+	}
+}
+
 int
 Mac802_11::getBandWidth()
 {
