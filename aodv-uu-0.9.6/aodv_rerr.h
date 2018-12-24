@@ -68,7 +68,7 @@ typedef struct {
 
 #ifndef NS_NO_DECLARATIONS
 RERR *rerr_create(u_int8_t flags, struct in_addr dest_addr,
-		  u_int32_t dest_seqno);
+		  u_int32_t dest_seqno, u_int32_t is_rran=0);
 void rerr_add_udest(RERR * rerr, struct in_addr udest, u_int32_t udest_seqno);
 void rerr_process(RERR * rerr, int rerrlen, struct in_addr ip_src,
 		  struct in_addr ip_dst);

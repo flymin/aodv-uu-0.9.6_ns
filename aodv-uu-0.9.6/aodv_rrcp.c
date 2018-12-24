@@ -200,7 +200,7 @@ void NS_CLASS rrcp_process(RRCP * rrcp, int rrcplen, struct in_addr ip_src,
 
             rerr_flags |= RERR_NODELETE;
             rerr = rerr_create(rerr_flags, fwd_rt->dest_addr,
-                               fwd_rt->dest_seqno,1);    ///////////
+                               fwd_rt->dest_seqno,-1);    ///////////
         }
     }
 
