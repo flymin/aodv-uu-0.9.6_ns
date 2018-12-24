@@ -220,3 +220,10 @@ aodv_rrcq.o: aodv_rerr.h params.h debug.h locality.h aodv_rrcq.h
 aodv_rrcp.o: aodv_rrcp.h aodv_rrcq.h aodv_rrep.h defs.h timer_queue.h list.h routing_table.h
 aodv_rrcp.o: aodv_neighbor.h aodv_hello.h aodv_timeout.h aodv_socket.h
 aodv_rrcp.o: aodv_rerr.h params.h debug.h
+
+aodv_rrdq.o: aodv_rreq.h defs.h timer_queue.h list.h seek_list.h aodv_rrdp.h
+aodv_rrdq.o: routing_table.h aodv_rrep.h aodv_timeout.h aodv_socket.h
+aodv_rrdq.o: aodv_rerr.h params.h debug.h locality.h aodv_rrcq.h
+aodv_rrdp.o: aodv_rrdp.h aodv_rrcq.h aodv_rrep.h defs.h timer_queue.h list.h routing_table.h
+aodv_rrdp.o: aodv_neighbor.h aodv_hello.h aodv_timeout.h aodv_socket.h
+aodv_rrdp.o: aodv_rerr.h params.h debug.h

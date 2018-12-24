@@ -12,8 +12,7 @@
 
 typedef struct {
     u_int8_t type;
-    u_int8_t dest_count;
-    u_int8_t cost;
+
     u_int8_t hcnt;
 
     u_int32_t lifetime;
@@ -21,6 +20,10 @@ typedef struct {
     u_int32_t dest_seqno;
     u_int32_t orig_addr;
     u_int32_t orig_seqno;
+
+    u_int32_t Cost;
+    u_int32_t Channel;
+    u_int32_t dest_count;
 }RRCP ;
 typedef struct {
     u_int32_t dest_addr;
@@ -49,11 +52,13 @@ RRCP* rrcp_create(RRCQ * rrcq,
                   u_int8_t flags,
                   int hcnt,
                   int cost,
-                  u_int32_t life
+                  u_int32_t life,u_int32_t Channel
                   );
 
+AODV_ext *rrcp_add_ext(RRCP * rrcp, int type, unsigned int offset,
+                       int len, char *data);
 
-void rrcp_forward(RRCP * rrcp, rt_table_t* rev_rt,rt_table_t* fwd_rt,int  ttl);
+void rrcp_forward(RRCP * rrcp,  int size,rt_table_t* rev_rt,rt_table_t* fwd_rt,int  ttl);
 void rrcp_process(RRCP * rrcp, int rrcplen, struct in_addr ip_src,
                   struct in_addr ip_dst, int ip_ttl,
                   unsigned int ifindex);

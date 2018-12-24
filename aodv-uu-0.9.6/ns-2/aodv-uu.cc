@@ -465,7 +465,7 @@ void NS_CLASS sendPacket(Packet *p, struct in_addr next_hop, double delay)
 		AODV_msg* aodv_msg = HDR_AODVUU(p);
         if (nIfaces) {
             for (int i = 0; i < nIfaces; ++i) {
-            	if(aodv_msg->type == AODV_RREQ) {
+                 if(aodv_msg->type == AODV_RREQ||aodv_msg->type == AODV_RRCQ||aodv_msg->type == AODV_RRDQ){
                     ((RREQ *) aodv_msg)->Channel = i;
 					printf("16231214 SEND RREQ: curnode = %d, orig = %d, dest = %d, channel = %d, la = %d\n",
                 	DEV_IFINDEX(ifindex).ipaddr.s_addr,
@@ -504,7 +504,7 @@ void NS_CLASS sendPacket(Packet *p, struct in_addr next_hop, double delay)
 		/********** Modified by Hao Hao **********/
 		AODV_msg* aodv_msg = HDR_AODVUU(p);
 		int channel = fixed_interface;
-		if(aodv_msg->type == AODV_RREP) {
+		if(aodv_msg->type == AODV_RREP||aodv_msg->type == AODV_RRCP||aodv_msg->type == AODV_RRDP) {
 			channel = ((RREP *)aodv_msg)->Channel;
 	        // output
 	        printf("16231214 SEND RREP: curnode = %d, orig = %d, dest = %d, channel = %d, la = %d\n",

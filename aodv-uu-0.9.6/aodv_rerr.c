@@ -36,10 +36,21 @@
 #endif
 
 RERR *NS_CLASS rerr_create(u_int8_t flags, struct in_addr dest_addr,
-			   u_int32_t dest_seqno)
+			   u_int32_t dest_seqno , u_int32_t is_rran)
 {
     RERR *rerr;
+	struct in_addr self_addr;
+	int i ;
 
+	for (i = 0; i < MAX_NR_INTERFACES; i++) {
+		if (DEV_NR(i).enabled) {
+			self_addr = DEV_NR(i).ipaddr;
+			break;
+		}
+	}
+	if(is_rran)
+		DEBUG(LOG_DEBUG,0 ,"RRAN_CREATE:%s\n",ip_to_str(dest_addr));
+	else
     DEBUG(LOG_DEBUG, 0, "Assembling RERR about %s seqno=%d",
 	  ip_to_str(dest_addr), dest_seqno);
 
@@ -50,6 +61,13 @@ RERR *NS_CLASS rerr_create(u_int8_t flags, struct in_addr dest_addr,
     rerr->res2 = 0;
     rerr->dest_addr = dest_addr.s_addr;
     rerr->dest_seqno = htonl(dest_seqno);
+	////
+	rerr->rerr_id  = -1;
+	if(is_rran)
+	{	rerr->rerr_id = htonl(this_host.rreq_id);
+		this_host.rreq_id++;   //±ÜÃâÁËÖØ¸´
+	}
+	////////
     rerr->dest_count = 1;
 
     return rerr;
@@ -92,6 +110,23 @@ void NS_CLASS rerr_process(RERR * rerr, int rerrlen, struct in_addr ip_src,
 	return;
     }
 
+	//////////
+	if(rerr->n)
+	{
+		struct in_addr rerr_destaddr;
+		rerr_destaddr.s_addr=0;
+
+		if (rrcq_record_find(rerr_destaddr,rerr->rerr_id,ip_src))
+			return ;
+		else
+			rrcq_record_insert(rerr_destaddr,rerr->rerr_id,ip_src);
+
+		DEBUG(LOG_DEBUG, 0,"recieve rran from:%s\n",ip_to_str(ip_src));
+
+
+	}
+
+
     /* Check which destinations that are unreachable.  */
     udest = RERR_UDEST_FIRST(rerr);
 
@@ -118,6 +153,19 @@ void NS_CLASS rerr_process(RERR * rerr, int rerrlen, struct in_addr ip_src,
 	    DEBUG(LOG_DEBUG, 0, "removing rte %s - WAS IN RERR!!",
 		  ip_to_str(udest_addr));
 
+        /////////////
+        if(rerr->n&& rerr->rerr_id!=-1)
+        {
+            fprintf(stderr,"doing rrdq at ip_src=%s rrcq_orig=%s rrcq_dest=%s \n",ip_to_str(ip_src), \
+                    ip_to_str(ip_src),ip_to_str(rt->dest_addr)
+            );
+            rrdq_send(rt->dest_addr,rt->dest_seqno,MAX_REPAIR_TTL , (u_int8_t)0);
+        }
+        /////////////
+
+
+
+
 #ifdef NS_PORT
 	    interfaceQueue((nsaddr_t) udest_addr.s_addr, IFQ_DROP_BY_DEST);
 #endif
@@ -141,7 +189,7 @@ void NS_CLASS rerr_process(RERR * rerr, int rerrlen, struct in_addr ip_src,
 			flags |= RERR_NODELETE;
 
 		    new_rerr = rerr_create(flags, rt->dest_addr,
-					   rt->dest_seqno);
+					   rt->dest_seqno,rerr->n);
 		    DEBUG(LOG_DEBUG, 0, "Added %s as unreachable, seqno=%lu",
 			  ip_to_str(rt->dest_addr), rt->dest_seqno);
 

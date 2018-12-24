@@ -21,7 +21,7 @@
 #include "aodv_rrcq.h"
 #endif
 
-RRCP *NS_CLASS rrcp_create(RRCQ * rrcq,u_int8_t flags, int hcnt, int cost, u_int32_t life)
+RRCP *NS_CLASS rrcp_create(RRCQ * rrcq,u_int8_t flags, int hcnt, int cost, u_int32_t life,u_int32_t Channel)
 {
 
     RRCP *rrcp;
@@ -29,7 +29,7 @@ RRCP *NS_CLASS rrcp_create(RRCQ * rrcq,u_int8_t flags, int hcnt, int cost, u_int
     rrcp = (RRCP *) aodv_socket_queue_msg((AODV_msg *) rrcq,RRCP_CALC_SIZE(rrcq));
 
     rrcp->type = AODV_RRCP;
-    rrcp->cost = 0;
+    rrcp->Cost = 0;
     rrcp->hcnt = 0;
     rrcp->lifetime =htonl(life);
     struct in_addr dest_addr,orig_addr;
@@ -42,6 +42,10 @@ RRCP *NS_CLASS rrcp_create(RRCQ * rrcq,u_int8_t flags, int hcnt, int cost, u_int
     rrcp->dest_seqno = this_host.seqno;
 
 
+
+    rrcp->Channel = Channel;
+    rrcp->Cost = 0;
+
 #ifdef DEBUG_OUTPUT
     if (rrcp->dest_addr != rrcp->orig_addr) {
 		DEBUG(LOG_DEBUG, 0, "Assembled RRCP:");
@@ -50,6 +54,25 @@ RRCP *NS_CLASS rrcp_create(RRCQ * rrcq,u_int8_t flags, int hcnt, int cost, u_int
 #endif
 
     return rrcp;
+}
+
+AODV_ext *NS_CLASS rrcp_add_ext(RRCP * rrcp, int type, unsigned int offset,
+                                int len, char *data)
+{
+    AODV_ext *ext = NULL;
+
+
+    if (offset < RRCP_SIZE)
+        return NULL;
+
+    ext = (AODV_ext *) ((char *) rrcp + offset);
+
+    ext->type = type;
+    ext->length = len;
+
+    memcpy(AODV_EXT_DATA(ext), data, len);
+
+    return ext;
 }
 
 void  NS_CLASS rrcp_send(RRCP * rrcp, rt_table_t * rev_rt, rt_table_t * fwd_rt, int size)
@@ -71,7 +94,7 @@ void  NS_CLASS rrcp_send(RRCP * rrcp, rt_table_t * rev_rt, rt_table_t * fwd_rt, 
           ip_to_str(rev_rt->next_hop), ip_to_str(rev_rt->dest_addr),
           ip_to_str(dest));
 
-    fprintf(stderr, "Sending RRCP to next hop %s about %s->%s",
+    fprintf(stderr, "Sending RRCP to next hop %s about %s->%s\n",
           ip_to_str(rev_rt->next_hop), ip_to_str(rev_rt->dest_addr),
           ip_to_str(dest));
     aodv_socket_send((AODV_msg *) rrcp, rev_rt->next_hop, size, MAXTTL,
@@ -88,7 +111,7 @@ void  NS_CLASS rrcp_send(RRCP * rrcp, rt_table_t * rev_rt, rt_table_t * fwd_rt, 
 
 }
 
-void NS_CLASS rrcp_forward(RRCP * rrcp, rt_table_t * rev_rt,
+void NS_CLASS rrcp_forward(RRCP * rrcp,int size, rt_table_t * rev_rt,
                            rt_table_t * fwd_rt, int ttl)
 {
 
@@ -108,7 +131,7 @@ void NS_CLASS rrcp_forward(RRCP * rrcp, rt_table_t * rev_rt,
                                           RRCP_CALC_SIZE(rrcp));
     rrcp->hcnt = fwd_rt->hcnt;	/* Update the hopcount */
 
-    aodv_socket_send((AODV_msg *) rrcp, rev_rt->next_hop, RRCP_CALC_SIZE(rrcp), ttl,
+    aodv_socket_send((AODV_msg *) rrcp, rev_rt->next_hop, size, ttl,
                      &DEV_IFINDEX(rev_rt->ifindex));
 
     precursor_add(fwd_rt, rev_rt->next_hop);
@@ -129,11 +152,22 @@ void NS_CLASS rrcp_process(RRCP * rrcp, int rrcplen, struct in_addr ip_src,
     rt_table_t *fwd_rt, *rev_rt, *rt;
     int rt_flags = 0, rrcp_dest_cnt;
     RRCP_udest *udest;
-    int if_send_rrer=0;
+    unsigned int extlen = 0;
     RERR* rerr=(RERR*)NULL;
 
-
+    AODV_ext *ext;
+    ext = (AODV_ext *) ((char *) rrcp + RRCP_SIZE);
+#ifdef CONFIG_GATEWAY
+    struct in_addr inet_dest_addr;
+    int inet_rrcp = 0;
+#endif
+    int start_rerr=0;
     struct in_addr rrcp_dest, rrcp_orig, udest_addr;
+
+    u_int32_t rrcp_Channel,rrcp_Cost;
+
+    rrcp_Cost = rrcp->Cost + Func_La(ip_src,DEV_IFINDEX(ifindex).ipaddr);
+    rrcp_Channel = Func_Cha(ip_src,DEV_IFINDEX(ifindex).ipaddr);
 
     /* Convert to correct byte order on affeected fields: */
     rrcp_dest.s_addr = rrcp->dest_addr;
@@ -156,6 +190,36 @@ void NS_CLASS rrcp_process(RRCP * rrcp, int rrcplen, struct in_addr ip_src,
     if (rrcp_dest.s_addr == DEV_IFINDEX(ifindex).ipaddr.s_addr)
         return;
 
+    while ((rrcplen - extlen) > RRCP_SIZE) {
+        switch (ext->type) {
+            case RREP_EXT:
+                DEBUG(LOG_INFO, 0, "RREP include EXTENSION");
+                /* Do something here */
+                break;
+#ifdef CONFIG_GATEWAY
+            case RREP_INET_DEST_EXT:
+	    if (ext->length == sizeof(u_int32_t)) {
+
+		/* Destination address in RREP is the gateway address, while the
+		 * extension holds the real destination */
+		memcpy(&inet_dest_addr, AODV_EXT_DATA(ext), ext->length);
+
+		DEBUG(LOG_DEBUG, 0, "RRCP_INET_DEST_EXT: <%s>",
+		      ip_to_str(inet_dest_addr));
+		/* This was a RREP from a gateway */
+		rt_flags |= RT_GATEWAY;
+		inet_rrcp = 1;
+		break;
+	    }
+#endif
+            default:
+                alog(LOG_WARNING, 0, __FUNCTION__, "Unknown or bad extension %d",
+                     ext->type);
+                break;
+        }
+        extlen += AODV_EXT_SIZE(ext);
+        ext = AODV_EXT_NEXT(ext);
+    }
 
     DEBUG(LOG_DEBUG, 0,"recv rrcp:orig_addr:%s,ip_src:%s,channel:%d,dest_addr:%s\n",ip_to_str(rrcp_orig),ip_to_str(ip_src),ifindex,ip_to_str(rrcp_dest));
     fprintf(stderr,"recv rrcp:orig_addr:%s,ip_src:%s,channel:%d,dest_addr:%s\n",ip_to_str(rrcp_orig),ip_to_str(ip_src),ifindex,ip_to_str(rrcp_dest));
@@ -168,12 +232,12 @@ void NS_CLASS rrcp_process(RRCP * rrcp, int rrcplen, struct in_addr ip_src,
         fwd_rt =
                 rt_table_insert(rrcp_dest, ip_src, rrcp_new_hcnt,
                                 rrcp_seqno, rrcp_lifetime, VALID, rt_flags,
-                                ifindex);
+                                ifindex,rrcp_Cost,rrcp_Channel);
     } else if (fwd_rt->dest_seqno == 0
                || (int32_t) rrcp_seqno > (int32_t) fwd_rt->dest_seqno
                || (rrcp_seqno == fwd_rt->dest_seqno
                    && (fwd_rt->state == INVALID || fwd_rt->flags & RT_UNIDIR
-                       || rrcp_new_hcnt < fwd_rt->hcnt))) {
+                       || rrcp_Cost < fwd_rt->Cost))) {
 
         pre_repair_hcnt = fwd_rt->hcnt;
         pre_repair_flags = fwd_rt->flags;
@@ -181,7 +245,7 @@ void NS_CLASS rrcp_process(RRCP * rrcp, int rrcplen, struct in_addr ip_src,
         fwd_rt =
                 rt_table_update(fwd_rt, ip_src, rrcp_new_hcnt, rrcp_seqno,
                                 rrcp_lifetime, VALID,
-                                (rt_flags | fwd_rt->flags) & (~RT_REPAIR));
+                                rt_flags | fwd_rt->flags , rrcp_Cost,rrcp_Channel  );
     } else {
         if (fwd_rt->hcnt > 1) {
             DEBUG(LOG_DEBUG, 0,
@@ -195,12 +259,12 @@ void NS_CLASS rrcp_process(RRCP * rrcp, int rrcplen, struct in_addr ip_src,
 
     if (rrcp_orig.s_addr == DEV_IFINDEX(ifindex).ipaddr.s_addr) {
 
-        if (fwd_rt->hcnt > 1 ) {
-            if_send_rrer=1;
+        if (fwd_rt->hcnt > 1 ) {///
+            start_rerr=1;
 
             rerr_flags |= RERR_NODELETE;
             rerr = rerr_create(rerr_flags, fwd_rt->dest_addr,
-                               fwd_rt->dest_seqno,-1);    ///////////
+                               fwd_rt->dest_seqno,1);    ///////////
         }
     }
 
@@ -217,15 +281,15 @@ void NS_CLASS rrcp_process(RRCP * rrcp, int rrcplen, struct in_addr ip_src,
 
         DEBUG(LOG_DEBUG, 0, "unreachable dest=%s seqno=%lu",
               ip_to_str(udest_addr), rrcp_seqno);
-        fprintf(stderr, "unreachable dest=%s seqno=%lu",
+        fprintf(stderr, "unreachable dest=%s seqno=%lu\n",
               ip_to_str(udest_addr), rrcp_seqno);
         rt = rt_table_find(udest_addr);
             if(rt!=NULL)
                  rt_table_update(rt, ip_src, rrcp_new_hcnt,
                                      udest_seqno, rrcp_lifetime, VALID,
-                                     rt_flags | fwd_rt->flags);///
+                                     rt_flags | fwd_rt->flags,rrcp_Cost,rrcp_Channel);///
 
-            if(if_send_rrer){
+            if(start_rerr){
                 rerr_add_udest(rerr, udest_addr,udest_seqno);
             }
 
@@ -236,9 +300,7 @@ void NS_CLASS rrcp_process(RRCP * rrcp, int rrcplen, struct in_addr ip_src,
     //rrdq
     if (rrcp_orig.s_addr == DEV_IFINDEX(ifindex).ipaddr.s_addr) {
 
-        if(if_send_rrer)
-        {
-            if (rerr) {
+        if(start_rerr&&rerr) {
 
                 //fprintf(stderr,"rrcp_process:send_rerr\n");
                 int i;
@@ -247,21 +309,26 @@ void NS_CLASS rrcp_process(RRCP * rrcp, int rrcplen, struct in_addr ip_src,
 
                     if (!DEV_NR(i).enabled)
                         continue;
-                    else{
+
                     dest.s_addr = AODV_BROADCAST;
                     aodv_socket_send((AODV_msg *) rerr, dest,
                                      RERR_CALC_SIZE(rerr), 1,
                                      &DEV_NR(i));
+
                     }
+
                 }
 
-            }
-        }
 
     } else {
         /* --- Here we FORWARD the RRCP on the REVERSE route --- */
         if (rev_rt && rev_rt->state == VALID) {
-            rrcp_forward(rrcp, rev_rt, fwd_rt, --ip_ttl);
+
+
+            rrcp->Cost = rrcp_Cost;
+            rrcp->Channel = rrcp_Channel;
+
+            rrcp_forward(rrcp, rrcplen,rev_rt, fwd_rt, --ip_ttl);
         } else {
             DEBUG(LOG_DEBUG, 0,
                   "Could not forward RREP - NO ROUTE!!!");

@@ -34,7 +34,12 @@ typedef struct {
     u_int32_t dest_seqno;
     u_int32_t orig_addr;
     u_int32_t orig_seqno;
-    u_int32_t cost ;
+
+
+
+
+    u_int32_t Cost;
+    u_int32_t Channel;
     u_int32_t dest_count;
 } RRCQ;
 typedef struct {
@@ -59,6 +64,10 @@ struct rrcq_record {
     struct in_addr orig_addr;	/* Source of the RREQ */
     u_int32_t rreq_id;		/* RRCQ's broadcast ID */
     struct timer rec_timer;
+
+
+    struct in_addr src_addr;
+
 };
 
 struct blacklist_rrcq {
@@ -98,9 +107,9 @@ void rrcq_local_repair(rt_table_t * rt, struct in_addr src_addr,
 
 #ifdef NS_PORT
 struct rrcq_record *rrcq_record_insert(struct in_addr orig_addr,
-				       u_int32_t rreq_id);
+				       u_int32_t rreq_id,struct in_addr src_addr);
 struct rrcq_record *rrcq_record_find(struct in_addr orig_addr,
-				     u_int32_t rreq_id);
+				     u_int32_t rreq_id , struct in_addr src_addr);
 struct blacklist *rrcq_blacklist_find(struct in_addr dest_addr);
 #endif				/* NS_PORT */
 

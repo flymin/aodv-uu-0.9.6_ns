@@ -80,6 +80,8 @@ class AODVUU;
 /** added by xujunpeng **/
 #include "../aodv_rrcq.h"
 #include "../aodv_rrcp.h"
+#include "../aodv_rrdp.h"
+#include "../aodv_rrdq.h"
 /** added by xujunpeng **/
 #include "../aodv_socket.h"
 #include "../aodv_timeout.h"
@@ -178,12 +180,18 @@ protected:
 /** added by xujunpeng **/
 #undef _AODV_RRCQ_H
 #include "../aodv_rrcq.h"
-#undef _AODV_RRCP_H
-#include "../aodv_rrcp.h"
-/** end added **/
 
 #undef _AODV_RREQ_H
 #include "../aodv_rreq.h"
+#undef _AODV_RRDQ_H
+#include "../aodv_rrdq.h"
+
+#undef _AODV_RRDP_H
+#include "../aodv_rrdp.h"
+
+#undef _AODV_RRCP_H
+#include "../aodv_rrcp.h"
+/** end added **/
 
 #undef _AODV_SOCKET_H
 #include "../aodv_socket.h"

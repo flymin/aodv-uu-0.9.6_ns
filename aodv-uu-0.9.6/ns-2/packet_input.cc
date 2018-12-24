@@ -159,11 +159,11 @@ void NS_CLASS processPacket(Packet * p)
 
 			if (fwd_rt) {
 				rerr = rerr_create(0, fwd_rt->dest_addr,
-								   fwd_rt->dest_seqno);
+                                   fwd_rt->dest_seqno,0);
 
 				rt_table_update_timeout(fwd_rt, DELETE_PERIOD);
 			} else
-				rerr = rerr_create(0, dest_addr, 0);
+                rerr = rerr_create(0, dest_addr, 0,0);
 
 			DEBUG(LOG_DEBUG, 0, "Sending RERR to prev hop %s for unknown dest %s", ip_to_str(src_addr), ip_to_str(dest_addr));
 
@@ -197,14 +197,18 @@ void NS_CLASS processPacket(Packet * p)
 		packet_queue_add(p, dest_addr);
 
 		if (fwd_rt && (fwd_rt->flags & RT_REPAIR))
-			rreq_local_repair(fwd_rt, src_addr, ipd);
+        {
+            
+            rrcq_local_repair(fwd_rt, src_addr, ipd);
+           
+        }
 		else
 			rreq_route_discovery(dest_addr, rreq_flags, ipd);
 
 		return;
 
 	} else {
-		/* DEBUG(LOG_DEBUG, 0, "Sending pkt uid=%d", ch->uid()); */
+          DEBUG(LOG_DEBUG, 0, "Sending pkt uid=%d", ch->uid());
 		sendPacket(p, fwd_rt->next_hop, 0.0);
 
 		/* When forwarding data, make sure we are sending HELLO messages */

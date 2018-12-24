@@ -31,8 +31,8 @@
 #ifndef NS_PORT
 static LIST(rrcq_records);
 static LIST(rrcq_blacklist);
-static struct rrcq_record *rrcq_record_insert(struct in_addr orig_addr,       u_int32_t rreq_id);
-static struct rrcq_record *rrcq_record_find(struct in_addr orig_addr,    u_int32_t rreq_id);
+static struct rrcq_record *rrcq_record_insert(struct in_addr orig_addr,       u_int32_t rreq_id,struct in_addr src_addr);
+static struct rrcq_record *rrcq_record_find(struct in_addr orig_addr,    u_int32_t rreq_id,struct in_addr src_addr);
 
 struct blacklist *rrcq_blacklist_find(struct in_addr dest_addr);
 
@@ -57,7 +57,7 @@ NS_STATIC struct rrcq_record *NS_CLASS rrcq_record_insert(struct in_addr
 {
     struct rrcq_record *rec;
 
-    rec = rrcq_record_find(orig_addr, rreq_id);
+    rec = rrcq_record_find(orig_addr, rreq_id,src_addr);
 
     if (rec)
         return rec;
@@ -69,7 +69,7 @@ NS_STATIC struct rrcq_record *NS_CLASS rrcq_record_insert(struct in_addr
     }
     rec->orig_addr = orig_addr;
     rec->rreq_id = rreq_id;
-
+    rec->src_addr = src_addr;
     timer_init(&rec->rec_timer, &NS_CLASS rrcq_record_timeout, rec);
 
     list_add(&rrcq_records, &rec->l);
@@ -83,14 +83,14 @@ NS_STATIC struct rrcq_record *NS_CLASS rrcq_record_insert(struct in_addr
 
 NS_STATIC struct rrcq_record *NS_CLASS rrcq_record_find(struct in_addr
                                                         orig_addr,
-                                                        u_int32_t rreq_id)
+                                                        u_int32_t rreq_id,struct in_addr src_addr)
 {
     list_t *pos;
 
     list_foreach(pos, &rrcq_records) {
         struct rrcq_record *rec = (struct rrcq_record *) pos;
         if (rec->orig_addr.s_addr == orig_addr.s_addr &&
-            (rec->rreq_id == rreq_id))
+            (rec->rreq_id == rreq_id) &&(rec->src_addr.s_addr == src_addr.s_addr))
             return rec;
     }
     return NULL;
@@ -117,6 +117,12 @@ RRCQ *NS_CLASS rrcq_create(u_int8_t flags, int dest_addr, u_int32_t dest_seqno, 
 
     rrcq->dest_addr = dest_addr;
     rrcq->orig_addr = orig_addr;
+
+    //////
+    rrcq->Channel=0;
+    rrcq->Cost=0;
+    //////
+
 
     rrcq->j = 1;
     rrcq->r = 1;
@@ -211,7 +217,7 @@ void NS_CLASS rrcq_forward(RRCQ * rrcq, int size, int ttl)
     /* FORWARD the RRCQ if the TTL allows it. */
     DEBUG(LOG_INFO, 0, "forwarding RRCQ src=%s, rrcq_id=%lu",
           ip_to_str(orig), ntohl(rrcq->rrcq_id));
-    fprintf(stderr, "forwarding RRCQ src=%s, rrcq_id=%lu",
+    fprintf(stderr, "forwarding RRCQ src=%s, rrcq_id=%lu\n",
           ip_to_str(orig), ntohl(rrcq->rrcq_id));
     /* Queue the received message in the send buffer */
     rrcq = (RRCQ *) aodv_socket_queue_msg((AODV_msg *) rrcq,
@@ -240,12 +246,19 @@ void NS_CLASS rrcq_process(RRCQ * rrcq, int rrcqlen, struct in_addr ip_src, stru
     //unsigned int extlen = 0;
     struct in_addr rrcq_dest, rrcq_orig;
 
+
+    u_int32_t rrcq_Cost,rrcq_Channel;
+
+
     rrcq_dest.s_addr = rrcq->dest_addr;
     rrcq_orig.s_addr = rrcq->orig_addr;
     rrcq_id = ntohl(rrcq->rrcq_id);
     rrcq_dest_seqno = ntohl(rrcq->dest_seqno);
     rrcq_orig_seqno = ntohl(rrcq->orig_seqno);
     rrcq_new_hcnt = rrcq->hcnt + 1;
+
+    rrcq_Cost = rrcq->Cost + Func_La(ip_src,DEV_IFINDEX(ifindex).ipaddr);
+    rrcq_Channel = Func_Cha(ip_src,DEV_IFINDEX(ifindex).ipaddr);
 
 
 
@@ -275,19 +288,16 @@ void NS_CLASS rrcq_process(RRCQ * rrcq, int rrcqlen, struct in_addr ip_src, stru
 
 
     /* Ignore already processed RREQs. */
-    if (rrcq_record_find(rrcq_orig, rrcq_id))
+    if (rrcq_record_find(rrcq_orig, rrcq_id,ip_src))
         return;
 
     /* Now buffer this RRCQ so that we don't process a similar RRCQ we
        get within PATH_DISCOVERY_TIME. */
-    rrcq_record_insert(rrcq_orig, rrcq_id);
+    rrcq_record_insert(rrcq_orig, rrcq_id,ip_src);
 
 
     struct timeval now;
     gettimeofday(&now,NULL);
-
-//    OUTPUT(4,"recv rrcq:orig_addr:%s,ip_src:%s,channel:%d,dest_addr:%s,rrcq_id:%d\n",ip_to_str(rrcq_orig),ip_to_str(ip_src),ifindex,ip_to_str(rrcq_dest),rrcq_id);
-    //fprintf(stderr,"rrcq_process:i get rrcq.me: %d,from:%d,hcnt:%d,time:%ld,%ld\n",DEV_IFINDEX(ifindex).ipaddr.s_addr,rrcq_orig.s_addr,rrcq_new_hcnt,now.tv_sec,now.tv_usec);
 
 #ifdef DEBUG_OUTPUT
     log_pkt_fields((AODV_msg *) rrcq);
@@ -307,15 +317,15 @@ void NS_CLASS rrcq_process(RRCQ * rrcq, int rrcqlen, struct in_addr ip_src, stru
               "Creating REVERSE route entry, RRCQ orig: %s",
               ip_to_str(rrcq_orig));
 
-        rev_rt = rt_table_insert(rrcq_orig, ip_src, rrcq_new_hcnt, rrcq_orig_seqno, life, VALID, 0,
-                                 ifindex);//here to increase
+        rev_rt = rt_table_insert(rrcq_orig, ip_src, rrcq_new_hcnt, rrcq_orig_seqno, life, INVALID, 0,
+                                 ifindex,rrcq_Cost,rrcq_Channel);//here to increase
     } else {
         if (rev_rt->dest_seqno == 0 ||
             (int32_t) rrcq_orig_seqno > (int32_t) rev_rt->dest_seqno ||
             (rrcq_orig_seqno == rev_rt->dest_seqno &&
              (rev_rt->state == INVALID
-              || rrcq_new_hcnt < rev_rt->hcnt))) {
-            rev_rt =rt_table_update(rev_rt, ip_src, rrcq_new_hcnt,rrcq_orig_seqno, life, VALID,rev_rt->flags);//here to increase calcount
+              || rrcq_Cost < rev_rt->Cost))) {
+            rev_rt =rt_table_update(rev_rt, ip_src, rrcq_new_hcnt,rrcq_orig_seqno, life, INVALID,rev_rt->flags,rrcq_Cost,rrcq_Channel);//here to increase calcount
         }
     }
 
@@ -329,7 +339,7 @@ void NS_CLASS rrcq_process(RRCQ * rrcq, int rrcqlen, struct in_addr ip_src, stru
                 seqno_incr(this_host.seqno);
         }
         fprintf(stderr,"terminal node has recieved the rrcq ,staring send rrcp ,rrcq_udest_count is %d!\n",rrcq->dest_count);
-         RRCP* rrcp=rrcp_create(rrcq,0,MY_ROUTE_TIMEOUT,0,0);//DAIDING
+         RRCP* rrcp=rrcp_create(rrcq,0,MY_ROUTE_TIMEOUT,0,0,rev_rt->Channel);//DAIDING
          rrcp_send(rrcp,rev_rt,NULL,RRCP_CALC_SIZE(rrcp));
 //!!!!!!
 
@@ -337,6 +347,9 @@ void NS_CLASS rrcq_process(RRCQ * rrcq, int rrcqlen, struct in_addr ip_src, stru
     else
     {
         if (ip_ttl > 1) {
+            rrcq->Cost = rrcq_Cost;
+            rrcq->Channel = rrcq_Channel;
+
             rrcq_forward(rrcq,rrcqlen ,--ip_ttl);
         }
     }
@@ -414,6 +427,7 @@ void NS_CLASS rrcq_local_repair(rt_table_t * rt, struct in_addr src_addr, struct
 
 
     rrcq_send(rt->next_hop, rt->dest_seqno, ttl, flags);
+    //to find a local way  :by dormouse
 
     /* Remember that we are seeking this destination and setup the
        timers */
