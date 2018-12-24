@@ -44,7 +44,6 @@ RRCP *NS_CLASS rrcp_create(RRCQ * rrcq,u_int8_t flags, int hcnt, int cost, u_int
 
 
     rrcp->Channel = Channel;
-    rrcp->Cost = 0;
 
 #ifdef DEBUG_OUTPUT
     if (rrcp->dest_addr != rrcp->orig_addr) {
@@ -166,8 +165,8 @@ void NS_CLASS rrcp_process(RRCP * rrcp, int rrcplen, struct in_addr ip_src,
 
     u_int32_t rrcp_Channel,rrcp_Cost;
 
-    rrcp_Cost = rrcp->Cost + Func_La(ip_src,DEV_IFINDEX(ifindex).ipaddr);
-    rrcp_Channel = Func_Cha(ip_src,DEV_IFINDEX(ifindex).ipaddr);
+    rrcp_Channel = rrcp->Channel;
+    rrcp_Cost = rrcp->Cost + nb_table_find(ip_src, rrcp_Channel, true)->cost;
 
     /* Convert to correct byte order on affeected fields: */
     rrcp_dest.s_addr = rrcp->dest_addr;
@@ -232,12 +231,12 @@ void NS_CLASS rrcp_process(RRCP * rrcp, int rrcplen, struct in_addr ip_src,
         fwd_rt =
                 rt_table_insert(rrcp_dest, ip_src, rrcp_new_hcnt,
                                 rrcp_seqno, rrcp_lifetime, VALID, rt_flags,
-                                ifindex,rrcp_Cost,rrcp_Channel);
+                                ifindex,rrcp_Channel,rrcp_Cost);
     } else if (fwd_rt->dest_seqno == 0
                || (int32_t) rrcp_seqno > (int32_t) fwd_rt->dest_seqno
                || (rrcp_seqno == fwd_rt->dest_seqno
                    && (fwd_rt->state == INVALID || fwd_rt->flags & RT_UNIDIR
-                       || rrcp_Cost < fwd_rt->Cost))) {
+                       || rrcp_Cost < fwd_rt->LA))) {
 
         pre_repair_hcnt = fwd_rt->hcnt;
         pre_repair_flags = fwd_rt->flags;
@@ -245,7 +244,7 @@ void NS_CLASS rrcp_process(RRCP * rrcp, int rrcplen, struct in_addr ip_src,
         fwd_rt =
                 rt_table_update(fwd_rt, ip_src, rrcp_new_hcnt, rrcp_seqno,
                                 rrcp_lifetime, VALID,
-                                rt_flags | fwd_rt->flags , rrcp_Cost,rrcp_Channel  );
+                                rt_flags | fwd_rt->flags ,rrcp_Channel, rrcp_Cost);
     } else {
         if (fwd_rt->hcnt > 1) {
             DEBUG(LOG_DEBUG, 0,
@@ -287,7 +286,7 @@ void NS_CLASS rrcp_process(RRCP * rrcp, int rrcplen, struct in_addr ip_src,
             if(rt!=NULL)
                  rt_table_update(rt, ip_src, rrcp_new_hcnt,
                                      udest_seqno, rrcp_lifetime, VALID,
-                                     rt_flags | fwd_rt->flags,rrcp_Cost,rrcp_Channel);///
+                                     rt_flags | fwd_rt->flags,rrcp_Channel, rrcp_Cost);///
 
             if(start_rerr){
                 rerr_add_udest(rerr, udest_addr,udest_seqno);

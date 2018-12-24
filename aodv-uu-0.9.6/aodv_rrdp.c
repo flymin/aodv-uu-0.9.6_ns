@@ -131,8 +131,8 @@ void NS_CLASS rrdp_process(RRDP * rrdp, int rrdplen, struct in_addr ip_src,
     rrdp_seqno = ntohl(rrdp->dest_seqno);
     rrdp_lifetime = ntohl(rrdp->lifetime);
     /* Increment RRDP hop count to account for intermediate node... */
-    rrdp_Cost = rrdp->Cost + Func_La(ip_src,DEV_IFINDEX(ifindex).ipaddr);
-    rrdp_Channel = Func_Cha(ip_src,DEV_IFINDEX(ifindex).ipaddr);
+    rrdp_Channel = rrdp->Channel;
+    rrdp_Cost = rrdp->Cost + nb_table_find(ip_src, rrdp_Channel, true)->cost;
     fprintf(stderr,"process rrdp ,from :%d to: %d \n",ip_to_str(ip_src),ip_to_str(ip_dst));
 
 
@@ -160,18 +160,19 @@ void NS_CLASS rrdp_process(RRDP * rrdp, int rrdplen, struct in_addr ip_src,
      if (!fwd_rt) {
         /* We didn't have an existing entry, so we insert a new one. */
         fwd_rt = rt_table_insert(rrdp_dest, ip_src, rrdp_new_hcnt, rrdp_seqno,
-                                 rrdp_lifetime, VALID, rt_flags, ifindex,rrdp_Cost,rrdp_Channel);
+                                 rrdp_lifetime, VALID, rt_flags, ifindex,
+				 rrdp_Channel, rrdp_Cost);
     } else if (fwd_rt->dest_seqno == 0 ||
                (int32_t) rrdp_seqno > (int32_t) fwd_rt->dest_seqno ||
                (rrdp_seqno == fwd_rt->dest_seqno &&
-                (fwd_rt->state == INVALID || fwd_rt->flags & RT_UNIDIR ||rrdp_Cost < fwd_rt->Cost
+                (fwd_rt->state == INVALID || fwd_rt->flags & RT_UNIDIR ||rrdp_Cost < fwd_rt->LA
                 ))) {
         pre_repair_hcnt = fwd_rt->hcnt;
         pre_repair_flags = fwd_rt->flags;
 
         fwd_rt = rt_table_update(fwd_rt, ip_src, rrdp_new_hcnt, rrdp_seqno,
                                  rrdp_lifetime, VALID,
-                                 rt_flags | fwd_rt->flags,rrdp_Cost,rrdp_Channel);
+                                 rt_flags | fwd_rt->flags,rrdp_Channel,rrdp_Cost);
     } else {
         //fprintf(stderr,"rrdp_process:2\n");
         if (fwd_rt->hcnt > 1) {

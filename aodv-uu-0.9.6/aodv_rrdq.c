@@ -130,9 +130,8 @@ void NS_CLASS rrdq_process(RRDQ * rrdq, int rrdqlen, struct in_addr ip_src,
     rrdq_orig_seqno = ntohl(rrdq->orig_seqno);
     rrdq_new_hcnt = rrdq->hcnt + 1;
 
-
-    rrdq_Cost = rrdq->Cost + Func_La(ip_src,DEV_IFINDEX(ifindex).ipaddr);
-    rrdq_Channel = Func_Cha(ip_src,DEV_IFINDEX(ifindex).ipaddr);
+    rrdq_Channel = rrdq->Channel;
+    rrdq_Cost = rrdq->Cost + nb_table_find(ip_src, rrdq_Channel, true)->cost;
 
     /* Ignore RRDQ's that originated from this node. Either we do this
        or we buffer our own sent RRDQ's as we do with others we
@@ -187,16 +186,17 @@ void NS_CLASS rrdq_process(RRDQ * rrdq, int rrdqlen, struct in_addr ip_src,
               ip_to_str(rrdq_orig));
 
         rev_rt = rt_table_insert(rrdq_orig, ip_src, rrdq_new_hcnt,
-                                 rrdq_orig_seqno, life, INVALID, 0, ifindex,rrdq_Cost,rrdq_Channel);
+                                 rrdq_orig_seqno, life, INVALID, 0, ifindex,
+				 rrdq_Channel, rrdq_Cost);
     } else {
         if (rev_rt->dest_seqno == 0 ||
             (int32_t) rrdq_orig_seqno > (int32_t) rev_rt->dest_seqno ||
             (rrdq_orig_seqno == rev_rt->dest_seqno &&
-             (rev_rt->state == INVALID || rrdq_Cost< rev_rt->Cost))) {
+             (rev_rt->state == INVALID || rrdq_Cost< rev_rt->LA))) {
 
             rev_rt = rt_table_update(rev_rt, ip_src, rrdq_new_hcnt,
                                      rrdq_orig_seqno, life, INVALID,
-                                     rev_rt->flags,rrdq_Cost,rrdq_Channel);
+                                     rev_rt->flags,rrdq_Channel,rrdq_Cost);
        }
     }
 

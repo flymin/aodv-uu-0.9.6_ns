@@ -498,6 +498,23 @@ void NS_CLASS hello_process(HELLO *hello, int hellolen, unsigned int ifindex) {
     state = VALID;
 
     timeout = ALLOWED_HELLO_LOSS * hello_interval + ROUTE_TIMEOUT_SLACK;
+    /*added by gaoruiyuan*/
+    fprintf(stderr, "%s handling nb for %s, channel=%d, should add for first\n",
+            ip_to_str(DEV_NR(NS_DEV_NR).ipaddr),
+            ip_to_str(hello_orig), hello->channel);
+    nb = nb_table_find(hello_orig, hello->channel, true);
+    //fprintf(stderr, "got one, start validating\n");
+
+    /* added by chenzeyin */
+    stability_t *new_item = (stability_t *)malloc(sizeof(stability_t));
+    new_item->status = ((int)((hello->res2) == 2))? stable:unstable;
+    list_add(&(nb->data_link->stability), &(new_item->l));
+    fprintf(stderr, "add new stability %d\n", new_item->status);
+    /**********************/
+
+    if (nb->state == INVALID) {
+        nb_table_validate(nb);
+    }
 
     if (!rt) {
         /* No active or expired route in the routing table. So we add a
@@ -505,7 +522,7 @@ void NS_CLASS hello_process(HELLO *hello, int hellolen, unsigned int ifindex) {
 	/****** Modified by Hao Hao ***************/
 	rt = rt_table_insert(hello_orig, hello_orig, 1,
 			     hello_seqno, timeout, state, flags, ifindex, hello->channel,
-			     nb_table_find(hello_orig, hello->channel, false));
+			     nb->cost);
 	/*
         rt = rt_table_insert(hello_orig, hello_orig, 1,
                              hello_seqno, timeout, state, flags, ifindex);
@@ -539,26 +556,9 @@ void NS_CLASS hello_process(HELLO *hello, int hellolen, unsigned int ifindex) {
         */
 	//** Modified by Hao Hao **********/
 	rt_table_update(rt, hello_orig, 1, hello_seqno, timeout, VALID, flags,
-			hello->channel, nb_table_find(hello_orig, hello->channel, false));
+			hello->channel, nb->cost);
         //rt_table_update(rt, hello_orig, 1, hello_seqno, timeout, VALID, flags);
         //gaoruiyuan changed from dest to orig
-    }
-    /*added by gaoruiyuan*/
-    fprintf(stderr, "%s handling nb for %s, channel=%d, should add for first\n",
-            ip_to_str(DEV_NR(NS_DEV_NR).ipaddr),
-            ip_to_str(hello_orig), hello->channel);
-    nb = nb_table_find(hello_orig, hello->channel, true);
-    //fprintf(stderr, "got one, start validating\n");
-
-    /* added by chenzeyin */
-    stability_t *new_item = (stability_t *)malloc(sizeof(stability_t));
-    new_item->status = ((int)((hello->res2) == 2))? stable:unstable;
-    list_add(&(nb->data_link->stability), &(new_item->l));
-    fprintf(stderr, "add new stability %d\n", new_item->status);
-    /**********************/
-
-    if (nb->state == INVALID) {
-        nb_table_validate(nb);
     }
     //fprintf(stderr, "validated done, start send back\n");
     nb->nb_timer.used = 1;      // set as used to make sure this timer will be update but not copy

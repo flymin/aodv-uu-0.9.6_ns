@@ -188,6 +188,8 @@ static inline int name2index(char *name)
 #define AODV_RREP_ACK 4
 #define AODV_RRCP     7     // xujunpeng added
 #define AODV_RRCQ     6     //xujunpeng added
+#define AODV_RRDQ     8     //xujunpeng added
+#define AODV_RRDP     9     //xujunpeng added
 #define Marcov_K 2          //gaoruiyuan added
 
 /* A generic AODV packet header struct... */

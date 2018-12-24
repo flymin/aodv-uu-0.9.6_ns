@@ -4,11 +4,13 @@ NS_DIR=ns-2
 
 SRC =	main.c list.c debug.c timer_queue.c aodv_socket.c aodv_hello.c aodv_hello_ack.c\
 	aodv_neighbor.c aodv_timeout.c routing_table.c seek_list.c \
-	aodv_rreq.c aodv_rrep.c aodv_rerr.c nl.c aodv_rrcq.c aodv_rrcp.c
+	aodv_rreq.c aodv_rrep.c aodv_rerr.c nl.c aodv_rrcq.c aodv_rrcp.c \
+        aodv_rrdq.c aodv_rrdp.c
 
 SRC_NS = 	debug.c list.c timer_queue.c aodv_socket.c aodv_hello.c aodv_hello_ack.c\
 		aodv_neighbor.c aodv_timeout.c routing_table.c seek_list.c \
-		aodv_rreq.c aodv_rrep.c aodv_rerr.c aodv_rrcq.c aodv_rrcp.c
+		aodv_rreq.c aodv_rrep.c aodv_rerr.c aodv_rrcq.c aodv_rrcp.c \
+		aodv_rrdq.c aodv_rrdp.c
 
 SRC_NS_CPP =	$(NS_DIR)/aodv-uu.cc $(NS_DIR)/packet_queue.cc $(NS_DIR)/packet_input.cc \
 				$(NS_DIR)/armamain.cc $(NS_DIR)/ARMAMath.cc $(NS_DIR)/MAModel.cc $(NS_DIR)/ARMAModel.cc \
@@ -209,7 +211,7 @@ aodv_rrep.o: aodv_rrep.h defs.h timer_queue.h list.h routing_table.h
 aodv_rrep.o: aodv_neighbor.h aodv_hello.h aodv_hello_ack.h aodv_timeout.h aodv_socket.h
 aodv_rrep.o: aodv_rerr.h params.h debug.h
 aodv_rerr.o: aodv_rerr.h defs.h timer_queue.h list.h routing_table.h
-aodv_rerr.o: aodv_socket.h params.h aodv_timeout.h debug.h
+aodv_rerr.o: aodv_socket.h params.h aodv_timeout.h debug.h aodv_rrdq.h
 nl.o: defs.h timer_queue.h list.h lnx/kaodv-netlink.h debug.h aodv_rreq.h
 nl.o: seek_list.h routing_table.h aodv_timeout.h aodv_hello.h aodv_hello_ack.h aodv_rrep.h
 nl.o: params.h aodv_socket.h aodv_rerr.h

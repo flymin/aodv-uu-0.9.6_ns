@@ -51,9 +51,9 @@ struct blacklist *NS_CLASS rrcq_blacklist_find(struct in_addr dest_addr)
     return NULL;
 }
 
-NS_STATIC struct rrcq_record *NS_CLASS rrcq_record_insert(struct in_addr
-                                                          orig_addr,
-                                                          u_int32_t rreq_id)
+NS_STATIC struct rrcq_record *NS_CLASS rrcq_record_insert(struct in_addr orig_addr,
+							  u_int32_t rreq_id,
+                                                          struct in_addr src_addr)
 {
     struct rrcq_record *rec;
 
@@ -257,10 +257,8 @@ void NS_CLASS rrcq_process(RRCQ * rrcq, int rrcqlen, struct in_addr ip_src, stru
     rrcq_orig_seqno = ntohl(rrcq->orig_seqno);
     rrcq_new_hcnt = rrcq->hcnt + 1;
 
-    rrcq_Cost = rrcq->Cost + Func_La(ip_src,DEV_IFINDEX(ifindex).ipaddr);
-    rrcq_Channel = Func_Cha(ip_src,DEV_IFINDEX(ifindex).ipaddr);
-
-
+    rrcq_Channel = rrcq->Channel;
+    rrcq_Cost = rrcq->Cost + nb_table_find(ip_src, rrcq_Channel, true)->cost;
 
     if (rrcq_orig.s_addr == DEV_IFINDEX(ifindex).ipaddr.s_addr)
         return;
@@ -317,15 +315,15 @@ void NS_CLASS rrcq_process(RRCQ * rrcq, int rrcqlen, struct in_addr ip_src, stru
               "Creating REVERSE route entry, RRCQ orig: %s",
               ip_to_str(rrcq_orig));
 
-        rev_rt = rt_table_insert(rrcq_orig, ip_src, rrcq_new_hcnt, rrcq_orig_seqno, life, INVALID, 0,
-                                 ifindex,rrcq_Cost,rrcq_Channel);//here to increase
+        rev_rt = rt_table_insert(rrcq_orig, ip_src, rrcq_new_hcnt, rrcq_orig_seqno, life, 
+				INVALID, 0,ifindex,rrcq_Channel,rrcq_Cost);//here to increase
     } else {
         if (rev_rt->dest_seqno == 0 ||
             (int32_t) rrcq_orig_seqno > (int32_t) rev_rt->dest_seqno ||
             (rrcq_orig_seqno == rev_rt->dest_seqno &&
              (rev_rt->state == INVALID
-              || rrcq_Cost < rev_rt->Cost))) {
-            rev_rt =rt_table_update(rev_rt, ip_src, rrcq_new_hcnt,rrcq_orig_seqno, life, INVALID,rev_rt->flags,rrcq_Cost,rrcq_Channel);//here to increase calcount
+              || rrcq_Cost < rev_rt->LA))) {
+            rev_rt =rt_table_update(rev_rt, ip_src, rrcq_new_hcnt,rrcq_orig_seqno, life, INVALID,rev_rt->flags,rrcq_Channel,rrcq_Cost);//here to increase calcount
         }
     }
 

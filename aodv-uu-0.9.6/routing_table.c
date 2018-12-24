@@ -206,6 +206,7 @@ nb_table_t *NS_CLASS nb_table_find(struct in_addr dest_addr, unsigned int channe
 
     //int channel = 0;  //TODO change channel when using, done
     nb->data_link = find_data_link(&dest_addr, channel, index);
+    nb->cost = 100;
     /*for test only */
     srand(1);
     stability_t *stabitem;
