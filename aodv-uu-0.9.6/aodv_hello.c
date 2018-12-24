@@ -241,9 +241,9 @@ int NS_CLASS pre_stability() {
                 sum0++; //两个周期内节点都稳定
             else {
                 sum1++;//否则不稳定
-                if (stabcur->status == 1)
-                    sum2++;//sum3表示当前可用的信道数
-            }
+	    }
+            if (stabcur->status == 1)
+                sum2++;//sum3表示当前可用的信道数
             fprintf(stderr, " ");
         }
     }
