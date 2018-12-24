@@ -243,50 +243,50 @@ void NS_CLASS aodv_socket_process_packet(AODV_msg *aodv_msg, int len,
         /**** added by xujunpeng ***/
 	 case AODV_RRDQ:
             //fprintf(stderr, "BBBBBBBB\n");
-            neighbor_add(aodv_msg, src, ifindex);
+//            neighbor_add(aodv_msg, src, ifindex);
             DEBUG(LOG_DEBUG, 0, "Received RRDQ");
             rrdq_process((RRDQ *) aodv_msg, len, src, dst,ttl, ifindex);
             break;
         case AODV_RRDP:
             //fprintf(stderr, "CCCCCCCCg\n");
-            neighbor_add(aodv_msg, src, ifindex);
+//            neighbor_add(aodv_msg, src, ifindex);
             DEBUG(LOG_DEBUG, 0, "Received RRDP");
             rrdp_process((RRDP *) aodv_msg, len, src, dst,ttl,ifindex);
             break;
         case AODV_RRCQ: //路由恢复请求
             //fprintf(stderr, "gggggggg\n");
-            neighbor_add(aodv_msg, src, ifindex);
+//            neighbor_add(aodv_msg, src, ifindex);
             DEBUG(LOG_DEBUG, 0, "Received RRCQ");
             rrcq_process((RRCQ *) aodv_msg, len, src, dst, ttl, ifindex);
             break;
         case AODV_RRCP: //路由恢复回复
             //fprintf(stderr, "aaaaaaag\n");
-            neighbor_add(aodv_msg, src, ifindex);
+//            neighbor_add(aodv_msg, src, ifindex);
             DEBUG(LOG_DEBUG, 0, "Received RRCP");
             rrcp_process((RRCP *) aodv_msg, len, src, dst, ttl, ifindex);
             break;
         /*** end added ****/
         case AODV_RREQ:
-            neighbor_add(aodv_msg, src, ifindex);
+//            neighbor_add(aodv_msg, src, ifindex);
             rreq_process((RREQ *) aodv_msg, len, src, dst, ttl, ifindex);
             break;
         case AODV_RREP:
-            neighbor_add(aodv_msg, src, ifindex);
+//            neighbor_add(aodv_msg, src, ifindex);
             DEBUG(LOG_DEBUG, 0, "Received RREP");
             rrep_process((RREP *) aodv_msg, len, src, dst, ttl, ifindex);
             break;
         case AODV_RERR:
-            neighbor_add(aodv_msg, src, ifindex);
+//            neighbor_add(aodv_msg, src, ifindex);
             DEBUG(LOG_DEBUG, 0, "Received RERR");
             rerr_process((RERR *) aodv_msg, len, src, dst);
             break;
         case AODV_RREP_ACK:
-            neighbor_add(aodv_msg, src, ifindex);
+//            neighbor_add(aodv_msg, src, ifindex);
             DEBUG(LOG_DEBUG, 0, "Received RREP_ACK");
             rrep_ack_process((RREP_ack *) aodv_msg, len, src, dst);
             break;
         default:
-            neighbor_add(aodv_msg, src, ifindex);
+//            neighbor_add(aodv_msg, src, ifindex);
             alog(LOG_WARNING, 0, __FUNCTION__,
                  "Unknown msg type %u rcvd from %s to %s", aodv_msg->type,
                  ip_to_str(src), ip_to_str(dst));

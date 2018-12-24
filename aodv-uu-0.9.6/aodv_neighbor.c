@@ -40,6 +40,7 @@ extern int llfeedback;
 void NS_CLASS neighbor_add(AODV_msg * aodv_msg, struct in_addr source,
 			   unsigned int ifindex)
 {
+#if(0)
     struct timeval now;
     rt_table_t *rt = NULL;
     u_int32_t seqno = 0;
@@ -71,7 +72,7 @@ void NS_CLASS neighbor_add(AODV_msg * aodv_msg, struct in_addr source,
     // hello_updata_timeout removed by gaoruiyuan
     //if (!llfeedback && rt->hello_timer.used)
     //	hello_update_timeout(rt, &now, ALLOWED_HELLO_LOSS * HELLO_INTERVAL);
-
+#endif
     return;
 }
 
