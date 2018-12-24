@@ -102,7 +102,7 @@ int NS_CLASS svm_predict_main(float a, float b, float c, double d)
     svm_free_and_destroy_model(&model);		//	Is this really neccessary��multi time call only! by zwy
     free(x);
     
-    //fprintf(stderr, "svm_predict_result=%lf", svm_predict_result);
-    return svm_predict_result/1;
-    //return rand()%2;
+    fprintf(stderr, "|svm_predict_result=%lf ", svm_predict_result);
+    //return svm_predict_result/1;
+    return rand()%2;
 }

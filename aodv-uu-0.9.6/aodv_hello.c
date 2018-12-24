@@ -129,10 +129,15 @@ void NS_CLASS cal_cost(void *arg) {
                 array = nb->data_link->lifetimes;
                 len = nb->data_link->lifetime_len;
                 //fprintf(stderr, "arma array len=%d\n", len);
-                if (len > 3) {
+                if (len > 20) {
                     arma_predict = armamain(array, len);
                 } else {
-                    arma_predict = 0.0001;
+                    //arma_predict = 0.0001;
+		    arma_predict = 0.0;
+                    for(i = 0;i<len;i++){
+			arma_predict += (float)array[i];
+		    }
+		    arma_predict = arma_predict / (float)(len);
                 }
                 if (arma_predict <= 0) {
                     arma_predict = 0.0001;
