@@ -179,8 +179,9 @@ void NS_CLASS rreq_process(RREQ * rreq, int rreqlen, struct in_addr ip_src,
     struct in_addr rreq_dest, rreq_orig;
 
     /********** Modified by Hao Hao **********/
-    u_int32_t la = rreq->LA + retrieve_la();
+    //u_int32_t la = rreq->LA + retrieve_la();
     u_int8_t channel = rreq->Channel;
+    u_int32_t la = rreq->LA + nb_table_find(ip_src, channel, false)->cost;
     /*****************************************/
 
     rreq_dest.s_addr = rreq->dest_addr;
