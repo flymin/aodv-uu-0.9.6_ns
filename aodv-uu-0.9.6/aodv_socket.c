@@ -241,13 +241,27 @@ void NS_CLASS aodv_socket_process_packet(AODV_msg *aodv_msg, int len,
             hello_ack_process((HELLO_ACK *) aodv_msg, len, ifindex);
             break;
         /**** added by xujunpeng ***/
+	 case AODV_RRDQ:
+            //fprintf(stderr, "BBBBBBBB\n");
+            neighbor_add(aodv_msg, src, ifindex);
+            DEBUG(LOG_DEBUG, 0, "Received RRDQ");
+            rrdq_process((RRDQ *) aodv_msg, len, src, dst,ttl, ifindex);
+            break;
+        case AODV_RRDP:
+            //fprintf(stderr, "CCCCCCCCg\n");
+            neighbor_add(aodv_msg, src, ifindex);
+            DEBUG(LOG_DEBUG, 0, "Received RRDP");
+            rrdp_process((RRDP *) aodv_msg, len, src, dst,ttl,ifindex);
+            break;
         case AODV_RRCQ: //路由恢复请求
             //fprintf(stderr, "gggggggg\n");
+            neighbor_add(aodv_msg, src, ifindex);
             DEBUG(LOG_DEBUG, 0, "Received RRCQ");
             rrcq_process((RRCQ *) aodv_msg, len, src, dst, ttl, ifindex);
             break;
         case AODV_RRCP: //路由恢复回复
             //fprintf(stderr, "aaaaaaag\n");
+            neighbor_add(aodv_msg, src, ifindex);
             DEBUG(LOG_DEBUG, 0, "Received RRCP");
             rrcp_process((RRCP *) aodv_msg, len, src, dst, ttl, ifindex);
             break;
