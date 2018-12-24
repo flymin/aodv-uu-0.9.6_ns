@@ -36,6 +36,9 @@ void hello_timeout(void *arg);
 void rrep_ack_timeout(void *arg);
 void wait_on_reboot_timeout(void *arg);
 void packet_queue_timeout(void *arg);
+/** xujunpeng added **/
+void packet_queue_a_timeout(void *arg);
+/** added end **/
 #endif				/* NS_NO_DECLARATIONS */
 
 #endif				/* AODV_TIMEOUT_H */

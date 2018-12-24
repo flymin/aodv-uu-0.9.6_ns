@@ -39,6 +39,10 @@
 #include "routing_table.h"
 #include "seek_list.h"
 #include "nl.h"
+/** added by xujunpeng **/
+#include "aodv_rrcq.h"
+#include "../common/packet.h"
+/** add end **/
 
 extern int expanding_ring_search, local_repair;
 void route_delete_timeout(void *arg);
@@ -148,7 +152,7 @@ void NS_CLASS local_repair_timeout(void *arg)
 	//�����޸��ĳ�ʱʱ�䵽,�ж�Ϊ��·�Ͽ�,����rerr��Ϣ
 	if (rt->nprec) {
 
-		rerr = rerr_create(0, rt->dest_addr, rt->dest_seqno);
+		rerr = rerr_create(0, rt->dest_addr, rt->dest_seqno,0);
 
 		if (rt->nprec == 1) {
 			rerr_dest = FIRST_PREC(rt->precursors)->neighbor;
@@ -262,6 +266,12 @@ void NS_CLASS hello_timeout(void *arg)
 				       IFQ_BUFFER);
 #endif
 		}
+		/** xujunpeng added **/
+        RRCQ *rrcq;
+        rrcq = rrcq_create(0,0,0,0);
+		rrcq_record_timeout(NULL);
+        free(rrcq);
+		/** add end **/
 		neighbor_link_break(rt);
 	}
 }
@@ -300,4 +310,12 @@ void NS_CLASS packet_queue_timeout(void *arg)
 	packet_queue_garbage_collect();
 	timer_set_timeout(&PQ.garbage_collect_timer, GARBAGE_COLLECT_TIME);
 }
+
+/** xujunpeng added **/
+void NS_CLASS packet_queue_a_timeout(void *arg)
+{
+	packet_queue_garbage_a_collect();
+	timer_set_timeout(&AQ.garbage_collect_timer, GARBAGE_COLLECT_TIME);
+}
+/** add end **/
 #endif
