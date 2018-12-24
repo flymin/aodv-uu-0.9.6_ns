@@ -260,8 +260,9 @@ void NS_CLASS rrep_process(RREP * rrep, int rreplen, struct in_addr ip_src,
 #endif
 
     /********** Modified by Hao Hao **********/
-    u_int32_t la = rrep->LA + retrieve_la();
+    //u_int32_t la = rrep->LA + retrieve_la();
     u_int8_t channel = rrep->Channel;
+    u_int32_t channel = nb_table_find(ip_src, channel, false);
     /*****************************************/
 
     /* Convert to correct byte order on affeected fields: */

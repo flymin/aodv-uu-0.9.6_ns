@@ -36,7 +36,7 @@
 #endif
 
 RERR *NS_CLASS rerr_create(u_int8_t flags, struct in_addr dest_addr,
-			   u_int32_t dest_seqno)
+			   u_int32_t dest_seqno, u_int32_t is_rran)
 {
     RERR *rerr;
 
@@ -45,7 +45,7 @@ RERR *NS_CLASS rerr_create(u_int8_t flags, struct in_addr dest_addr,
 
     rerr = (RERR *) aodv_socket_new_msg();
     rerr->type = AODV_RERR;
-    rerr->n = (flags & RERR_NODELETE ? 1 : 0);
+    rerr->n = (is_rran & flags & RERR_NODELETE ? 1 : 0);
     rerr->res1 = 0;
     rerr->res2 = 0;
     rerr->dest_addr = dest_addr.s_addr;

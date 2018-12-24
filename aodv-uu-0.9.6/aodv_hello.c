@@ -504,7 +504,8 @@ void NS_CLASS hello_process(HELLO *hello, int hellolen, unsigned int ifindex) {
            new entry... */
 	/****** Modified by Hao Hao ***************/
 	rt = rt_table_insert(hello_orig, hello_orig, 1,
-			     hello_seqno, timeout, state, flags, ifindex, 0, 0);
+			     hello_seqno, timeout, state, flags, ifindex, hello->channel,
+			     nb_table_find(hello_orig, hello->channel, false));
 	/*
         rt = rt_table_insert(hello_orig, hello_orig, 1,
                              hello_seqno, timeout, state, flags, ifindex);
@@ -537,7 +538,8 @@ void NS_CLASS hello_process(HELLO *hello, int hellolen, unsigned int ifindex) {
         }
         */
 	//** Modified by Hao Hao **********/
-	rt_table_update(rt, hello_orig, 1, hello_seqno, timeout, VALID, flags, 0, 0);
+	rt_table_update(rt, hello_orig, 1, hello_seqno, timeout, VALID, flags,
+			hello->channel, nb_table_find(hello_orig, hello->channel, false));
         //rt_table_update(rt, hello_orig, 1, hello_seqno, timeout, VALID, flags);
         //gaoruiyuan changed from dest to orig
     }
