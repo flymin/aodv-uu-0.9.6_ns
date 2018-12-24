@@ -342,7 +342,7 @@ svm_model * NS_CLASS svm_load_model(const char *model_file_name)
 {
     //fprintf(stderr, "module name:%s\n",model_file_name);
     FILE *fp = fopen(model_file_name,"rb");
-    fprintf(stderr, "Load the file!\n");
+    //fprintf(stderr, "Load the file!\n");
     if(fp==NULL) return NULL;
    // fprintf(stderr, "Got the fp in svm_load_model!\n");
 

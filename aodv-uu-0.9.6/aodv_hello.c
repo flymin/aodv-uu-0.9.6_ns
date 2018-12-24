@@ -237,10 +237,16 @@ int NS_CLASS pre_stability() {
             }
         }
     }
-    neighbor_change_rate = (sum0 + sum1 == 0) ? 0.0 : (sum0 / (sum0 + sum1)) * 1.0;
+    neighbor_change_rate = (sum0 + sum1 == 0) ? 0.0 : ((float)sum0 / (float)(sum0 + sum1)) * 1.0;
+    // gaoruiyuan changed to float
     //neighbor_change_rate 就是邻居变化情况的信息
-    (sum2 >= 10) ? channel_use_rate = 1 : channel_use_rate = sum2 / 10; //可用信道数的信息
+    (sum2 >= 10) ? channel_use_rate = 1 : channel_use_rate = (float)sum2 / 10; //可用信道数的信息
+    // gaoruiyuan changed to float
     stable_result = svm_predict_main(neighbor_change_rate, channel_use_rate, flag, power);
+    fprintf(stderr, "| sum0 = %.2f", sum0);
+    fprintf(stderr, "| sum1 = %.2f", sum1);
+    fprintf(stderr, "| sum2 = %.2f", sum2);
+    fprintf(stderr, "| stable_result = %.2f\n", stable_result);
     return stable_result;
 }
 
