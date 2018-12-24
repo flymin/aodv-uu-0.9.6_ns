@@ -36,3 +36,11 @@
 *haohao*
 *bak*
 .idea
+gen
+ns
+nstk
+indep-utils/cmu-scen-gen/setdest/setdest
+indep-utils/webtrace-conv/dec/dec-tr-stat
+indep-utils/webtrace-conv/epa/epa-tr-stat
+indep-utils/webtrace-conv/nlanr/nlanr-tr-stat
+indep-utils/webtrace-conv/ucb/ucb-tr-stat
