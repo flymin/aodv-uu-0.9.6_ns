@@ -46,7 +46,7 @@ extern int unidir_hack, receive_n_hellos, hello_jittering, optimized_hellos;
 static struct timer hello_timer;
 
 /*added by gaoruiyuan*/
-#define INT_MAX 2147483647
+#define INT_MAX 100
 #define ALPHA   1
 #define BETA    1
 static struct timer cost_timer;
