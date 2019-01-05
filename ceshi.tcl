@@ -109,49 +109,49 @@ set nodedist 250
 $n(0) set X_ 0
 $n(0) set Y_ 300
 $n(0) set Z_ 0.0
-$ns_ initial_node_pos $n(0) 10
+$ns_ initial_node_pos $n(0) 50
 $n(0) random-motion 0
 
 $n(1) set X_ 100
 $n(1) set Y_ 300
 $n(1) set Z_ 0.0
-$ns_ initial_node_pos $n(1) 10
+$ns_ initial_node_pos $n(1) 50
 $n(1) random-motion 0
 
 $n(2) set X_ 300
 $n(2) set Y_ 300
 $n(2) set Z_ 0.0
-$ns_ initial_node_pos $n(2) 10
+$ns_ initial_node_pos $n(2) 50
 $n(2) random-motion 0
 
 $n(3) set X_ 300
 $n(3) set Y_ 0
 $n(3) set Z_ 0.0
-$ns_ initial_node_pos $n(3) 10
+$ns_ initial_node_pos $n(3) 50
 $n(3) random-motion 0
 
 $n(4) set X_ 500
 $n(4) set Y_ 300
 $n(4) set Z_ 0.0
-$ns_ initial_node_pos $n(4) 10
+$ns_ initial_node_pos $n(4) 50
 $n(4) random-motion 0
 
 $n(5) set X_ 600
 $n(5) set Y_ 300
 $n(5) set Z_ 0.0
-$ns_ initial_node_pos $n(5) 10
+$ns_ initial_node_pos $n(5) 50
 $n(5) random-motion 0
 
 $n(6) set X_ 900
 $n(6) set Y_ 400
 $n(6) set Z_ 0.0
-$ns_ initial_node_pos $n(6) 10
+$ns_ initial_node_pos $n(6) 50
 
 $n(7) random-motion 0
 $n(7) set X_ 900
 $n(7) set Y_ 400
 $n(7) set Z_ 0.0
-$ns_ initial_node_pos $n(7) 10
+$ns_ initial_node_pos $n(7) 50
 $n(7) random-motion 0
 
 
@@ -183,7 +183,7 @@ $pu_node(0) set X_ 500
 $pu_node(0) set Y_ 200
 $pu_node(0) set Z_ 0.0
 
-$ns_ initial_node_pos $pu_node(0) 30
+$ns_ initial_node_pos $pu_node(0) 80
 $pu_node(0) random-motion 0
 
 $ns_ node-config -workMode -1 \
@@ -195,7 +195,7 @@ $god_ new_node $pu_node(1)
 $pu_node(1) set X_ 500
 $pu_node(1) set Y_ 400
 $pu_node(1) set Z_ 0.0
-$ns_ initial_node_pos $pu_node(1) 30
+$ns_ initial_node_pos $pu_node(1) 80
 $pu_node(1) random-motion 0
 
 #======================================

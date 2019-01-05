@@ -7,38 +7,15 @@
 #include "aodv-uu.h"
 
 int print_null(const char *s,...) {return 0;}
-
 static int (*info)(const char *fmt,...) = &printf;
-
 struct svm_node *x;
 int max_nr_attr = 64;
-
 struct svm_model* model;
 int predict_probability=0;
 
-//static char *line = NULL;
-//static int max_line_len;
 
-char pretrained_model[100];		// added by zwy
-/*
-static char* readline(FILE *input)
-{
-	int len;
+char train_model[100];		// added by czy
 
-	if(fgets(line,max_line_len,input) == NULL)
-		return NULL;
-
-	while(strrchr(line,'\n') == NULL)
-	{
-		max_line_len *= 2;
-		line = (char *) realloc(line,max_line_len);
-		len = (int) strlen(line);
-		if(fgets(line+len,max_line_len-len,input) == NULL)
-			break;
-	}
-	return line;
-}
-*/
 /* modify by 16071070 czy */
 double NS_CLASS predict(struct svm_node *x)
 {
@@ -57,33 +34,29 @@ double NS_CLASS predict(struct svm_node *x)
 
 }
 
-
 //main function for svm
 /* modify by 16071070 czy */
 int NS_CLASS final_predict(float a, float b, float c, double d)
 {
-    //FILE *input, *output;
+
     int i;
-    double svm_predict_result;
+    double result;
     // parse options
     predict_probability = 0;		// modified by czy
 
-    strcpy(pretrained_model, "/home/buaa/ns-allinone-2.35/ns-2.35/aodv-uu-0.9.6/ns-2/fake.model");
-    pretrained_model[strlen(pretrained_model)] = 0;
+    strcpy(train_model, "/home/buaa/ns-allinone-2.35/ns-2.35/aodv-uu-0.9.6/ns-2/STABILITY_MODEL");
+    train_model[strlen(train_model)] = 0;
 
 
-    if ((model = svm_load_model(pretrained_model)) == 0)				//modified by czy
+    if ((model = svm_load_model(train_model)) == 0)				//modified by czy
     {
-        fprintf(stderr,"can't open model file %s\n",pretrained_model);
+        fprintf(stderr,"can't open model file %s\n",train_model);
         exit(1);
     }
 
-    //x = (struct svm_node *) malloc(max_nr_attr*sizeof(struct svm_node));	//can we change max_nr_attr to 1?  by zwy
+
     x = (struct svm_node *) malloc(5*sizeof(struct svm_node));				// one node at a time
-    for (i = 0; i < 3; i++) {												//��ʱֻ֧��3������ֵ
-        //x[i].value = input_node_info[i];
-        //x[i].index = i;
-    }
+
     x[0].index = 0;														// use it as end of kernel function calc
     x[0].value = a;
     x[1].index = 1;														// use it as end of kernel function calc
@@ -94,14 +67,12 @@ int NS_CLASS final_predict(float a, float b, float c, double d)
     x[3].value = d;
     x[4].index = -1;														// use it as end of kernel function calc
     x[4].value = 0.0;
-
-
-    svm_predict_result = predict(x);
+    result = predict(x);
     //printf("svm predict result is: %lf\n", svm_predict_result); /* added by 16071070 czy */
     svm_free_and_destroy_model(&model);
     free(x);
     
     fprintf(stderr, "|svm_predict_result=%lf ", svm_predict_result);
-    //return svm_predict_result/1;
-    return rand()%2;
+    return svm_predict_result/1;
+    //return rand()%2;
 }
