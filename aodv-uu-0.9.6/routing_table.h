@@ -73,10 +73,10 @@ struct nb_table{
 	u_int8_t state;		/* The state of this entry */
 	struct timer nb_timer;	/* The timer associated with this entry */
 
-	int nhello_ack;         //gaoruiyuan added
+	u_int32_t nhello_ack;         //gaoruiyuan added
 	list_t hello_ack_list;  /*gaoruiyuan add, to record hello ack received*/
 	stable_data_t *data_link; //gaoruiyuan added pointing at data
-	int cost;                   //gaoruiyuan added
+	u_int32_t cost;                   //gaoruiyuan added
 	struct timeval setup;       //gaoruiyuan added
     int all_status[1 << Marcov_K];
 };

@@ -39,7 +39,7 @@ static char* readline(FILE *input)
 	return line;
 }
 */
-//void predict(FILE *input, FILE *output)		//modified by zwy
+/* modify by 16071070 czy */
 double NS_CLASS predict(struct svm_node *x)
 {
     int correct = 0;
@@ -51,29 +51,28 @@ double NS_CLASS predict(struct svm_node *x)
     int nr_class=svm_get_nr_class(model);
     double *prob_estimates=NULL;
     int j;
-    // modified by zwy
     double predict_label;
     predict_label = svm_predict(model, x);
     return predict_label;
 
 }
-//	modified by zwy, this function is useless
 
 
-//int main(int argc, char **argv)
-int NS_CLASS svm_predict_main(float a, float b, float c, double d)
+//main function for svm
+/* modify by 16071070 czy */
+int NS_CLASS final_predict(float a, float b, float c, double d)
 {
     //FILE *input, *output;
     int i;
     double svm_predict_result;
     // parse options
-    predict_probability = 0;		// modified by zwy
-    //strcpy_s(pretrained_model, 100, "E:\\WirelessSys\\svm_draft.txt.model");
+    predict_probability = 0;		// modified by czy
+
     strcpy(pretrained_model, "/home/buaa/ns-allinone-2.35/ns-2.35/aodv-uu-0.9.6/ns-2/fake.model");
     pretrained_model[strlen(pretrained_model)] = 0;
 
-    //if((model=svm_load_model(argv[i+1]))==0)
-    if ((model = svm_load_model(pretrained_model)) == 0)				//modified by zwy
+
+    if ((model = svm_load_model(pretrained_model)) == 0)				//modified by czy
     {
         fprintf(stderr,"can't open model file %s\n",pretrained_model);
         exit(1);
@@ -98,8 +97,8 @@ int NS_CLASS svm_predict_main(float a, float b, float c, double d)
 
 
     svm_predict_result = predict(x);
-    //printf("svm predict result is: %lf\n", svm_predict_result);
-    svm_free_and_destroy_model(&model);		//	Is this really neccessary��multi time call only! by zwy
+    //printf("svm predict result is: %lf\n", svm_predict_result); /* added by 16071070 czy */
+    svm_free_and_destroy_model(&model);
     free(x);
     
     fprintf(stderr, "|svm_predict_result=%lf ", svm_predict_result);

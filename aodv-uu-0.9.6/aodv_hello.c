@@ -46,9 +46,9 @@ extern int unidir_hack, receive_n_hellos, hello_jittering, optimized_hellos;
 static struct timer hello_timer;
 
 /*added by gaoruiyuan*/
-#define INT_MAX 100
-#define ALPHA   1
-#define BETA    1
+#define DATA_MAX 100.0
+#define ALPHA   1.0
+#define BETA    1.0
 static struct timer cost_timer;
 /*end added*/
 #endif
@@ -121,7 +121,7 @@ void NS_CLASS cal_cost(void *arg) {
                 }
                 assert(N_hello >= R_ack);
 
-                ETT = ((float) N_hello * (HELLO_SIZE + HELLO_ACK_SIZE) * 8 / (float) ((float) R_ack * BandWidth));
+                ETT = ((float) N_hello * (float)(HELLO_SIZE + HELLO_ACK_SIZE) * 32.0 / (float) ((float) R_ack * BandWidth));
                 fprintf(stderr, "R_ack=%d, N_hello=%d ", R_ack, N_hello);
                 fprintf(stderr, "ETT=%f ", ETT);
 
@@ -179,10 +179,14 @@ void NS_CLASS cal_cost(void *arg) {
                     prob = 0.99;
                 }
                 /*step 4. calculate cost*/
-                nb->cost = 1000 * (ALPHA * ETT + BETA / (arma_predict * (1.0 - prob)));
+                float result_temp = 1000.0 * (ALPHA * ETT + BETA / (arma_predict * (1.0 - prob)));
+		nb->cost =(u_int32_t)(10.0 * sqrt(result_temp));
+		if(nb->cost < 0 || nb->cost > DATA_MAX){ 
+			nb->cost = DATA_MAX; 
+		}
                 fprintf(stderr, "nb->cost=%d", nb->cost);
             } else {
-                nb->cost = INT_MAX;
+                nb->cost = DATA_MAX;
             }
             //TODO ALPHA and BETA is defined, right or not?
             fprintf(stderr, "\n");
@@ -192,7 +196,7 @@ void NS_CLASS cal_cost(void *arg) {
     fprintf(stderr, "cal done\n");
 }
 
-/************* this function added by czy 16071064 **************/
+/************* this function added by czy 16071070 **************/
 int NS_CLASS pre_stability() {
     int sum0 = 0, sum1 = 0, sum2 = 0;
     int stable_result;
@@ -252,7 +256,7 @@ int NS_CLASS pre_stability() {
     //neighbor_change_rate 就是邻居变化情况的信息
     channel_use_rate = (sum2 >= 10) ? 1.0 : (float)sum2 / 10.0; //可用信道数的信息
     // gaoruiyuan changed to float
-    stable_result = svm_predict_main(neighbor_change_rate, channel_use_rate, flag, power);
+    stable_result = final_predict(neighbor_change_rate, channel_use_rate, flag, power);
     fprintf(stderr, "| sum0 = %d", sum0);
     fprintf(stderr, "| sum1 = %d", sum1);
     fprintf(stderr, "| sum2 = %d", sum2);

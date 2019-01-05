@@ -166,15 +166,8 @@ double NS_CLASS svm_predict(const svm_model *model, const svm_node *x)
 {
     int nr_class = model->nr_class;
     double *dec_values;
-    // failed to malloc, use array instead, by zwy
-/*
-	if(model->param.svm_type == ONE_CLASS ||
-	   model->param.svm_type == EPSILON_SVR ||
-	   model->param.svm_type == NU_SVR)
-		dec_values = Malloc(double, 1);
-	else
-*/
-    //dec_values = Malloc(double, nr_class*(nr_class-1)/2);		/*modified by zwy for debug*/
+
+   /* added by 16071070 czy */
     dec_values = (double *)malloc((nr_class*(nr_class - 1) / 2)*sizeof(double));
     double pred_result = svm_predict_values(model, x, dec_values);
     free(dec_values);
@@ -182,21 +175,6 @@ double NS_CLASS svm_predict(const svm_model *model, const svm_node *x)
 }
 
 
-/*
-static const char *svm_type_table[] =
-        {
-                "c_svc","nu_svc","one_class","epsilon_svr","nu_svr",NULL
-        };
-
-static const char *kernel_type_table[]=
-        {
-                "linear","polynomial","rbf","sigmoid","precomputed",NULL
-        };
-*/
-
-
-//static char *line = NULL;
-//static int max_line_len;
 
 char* NS_CLASS readline(FILE *input)
 {
@@ -340,6 +318,7 @@ bool NS_CLASS read_model_header(FILE *fp, svm_model* model)
 
 svm_model * NS_CLASS svm_load_model(const char *model_file_name)
 {
+    /* modify by 16071070 czy for debug */
     //fprintf(stderr, "module name:%s\n",model_file_name);
     FILE *fp = fopen(model_file_name,"rb");
     //fprintf(stderr, "Load the file!\n");

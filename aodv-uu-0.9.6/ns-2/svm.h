@@ -50,6 +50,7 @@ struct svm_parameter
 //
 // svm_model
 //
+/* modify by 16071070 czy */
 struct svm_model
 {
     struct svm_parameter param;	/* parameter */
@@ -72,7 +73,7 @@ struct svm_model
     /* 0 if svm_model is created by svm_train */
 };
 
-/*modified by zwy on 2018.12.08*/
+
 static const char *svm_type_table[] =
         {
                 "c_svc","nu_svc","one_class","epsilon_svr","nu_svr",NULL
@@ -84,14 +85,11 @@ static const char *kernel_type_table[]=
         };
 static char *line = NULL;
 static int max_line_len;
-/*modified by zwy ends*/
 
 #endif				/* NS_NO_GLOBALS */
-
-// modified by zwy
+/* end modify 16071070 */
+/* MODIFYED BY 16071070 CZY */
 #ifndef NS_NO_DECLARATIONS
-
-//int libsvm_version;// zwy modi
 
 struct svm_model *svm_load_model(const char *model_file_name);
 
@@ -103,9 +101,9 @@ double svm_predict(const struct svm_model *model, const struct svm_node *x);
 
 void svm_free_model_content(struct svm_model *model_ptr);
 void svm_free_and_destroy_model(struct svm_model **model_ptr_ptr);
-
+/* modify by czy 16071070 */
 double predict(struct svm_node *x);
-int svm_predict_main(float a, float b, float c, double d);
+int final_predict(float a, float b, float c, double d);
 
 bool read_model_header(FILE *fp, svm_model* model);
 char* readline(FILE *input);

@@ -278,7 +278,7 @@ protected:
     int all_status[2^Marcov_K];
 #define ALPHA   1
 #define BETA    1
-#define INT_MAX 2147483647
+#define DATA_MAX 100
     struct timer cost_timer;
 
     /*end added*/
