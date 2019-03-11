@@ -14,59 +14,6 @@ Abstract
 In the environment of wireless ad hoc networks, establishing and maintaining effective routes is the most basic problem of node communication. Based on the basic principle of Ad-Hoc network environment, this experiment further improves the route discovery method based on minimum loss in route establishment process based on aodv-uu protocol. In this experiment, the structure of the neighbor node table is maintained by itself, and the expected delivery count is collected and counted. The ARMA model is used to perform the link life cycle. Combined with the information of the node stability prediction unit, the Markov model is used to give the node stability prediction. The transmission cost of the one-hop neighbor node is comprehensively provided, and the route discovery process is established to establish a route based on the minimum transmission loss.
 
 **Key words:** Aodv-uu Protocol, ARMA, Markov, Route establishment optimization;
-
-**目录**
-
->   [第一章 引言 I](#_Toc534561700)
-
->   [第二章 实验背景 I](#_Toc534561701)
-
-[2.1 研究背景 I](#_Toc534561702)
-
-[2.2 AODV协议 II](#_Toc534561703)
-
-[2.3 扩展部分的相关原理/模型 II](#_Toc534561704)
-
-[2.5 实验工具及实验环境 III](#_Toc534561705)
-
->   [第三章 项目实现 III](#_Toc534561706)
-
-[3.1 实现要点 III](#_Toc534561707)
-
->   [3.1.1链路质量预测 III](#_Toc534561708)
-
->   [3.1.2链路生存周期 IV](#_Toc534561709)
-
->   [3.1.3链路干扰预测 V](#_Toc534561710)
-
->   [3.1.4影响综合 V](#_Toc534561711)
-
-[3.2具体方法 V](#_Toc534561712)
-
-[3.3 数据结构设计 VII](#_Toc534561713)
-
->   [3.3.1 Hello 消息 VIII](#_Toc534561714)
-
->   [3.3.2 Hello_ack 消息 VIII](#_Toc534561715)
-
->   [3.3.2 邻居节点链表及数据统计表 IX](#_Toc534561716)
-
-[3.4 Hello与Hello_ack逻辑的修改 XI](#_Toc534561717)
-
-[3.5 cost值的计算 XI](#_Toc534561718)
-
-[3.6 neighbor table的维护 XII](#_Toc534561719)
-
-[3.7 修改清单 XII](#_Toc534561720)
-
->   [第四章 实验验证 XIII](#_Toc534561721)
-
-[4.1 实验场景设置 XIII](#_Toc534561722)
-
-[4.2 实验结果分析 XIV](#_Toc534561723)
-
->   [总结 XV](#_Toc534561724)
-
 ### 引言
 
 自1997年IEEE802.11协议正式发布以来，无线局域网得到了快速发展，但IEEE802.11协议不具有转发功能，组成的网络规模小，传输距离近，需要铺设较多无线接入点，而Ad
@@ -121,63 +68,48 @@ AODV协议工作过程可简单的看作是源节点发起路由请求RREQ，在
 
 链路质量预测只要反应这条链路上进行数据包投递的成功率，依据这个指标评价链路的好坏。因此，采用期望传递计数（ETX）与带宽进行计算。
 
-$$
-\ ETT = \frac{\text{ETX}}{B}
-$$
+![](https://latex.codecogs.com/gif.latex?\text{ETT}=\frac{\text{ETX}}{B})
 
-$$
-ETX = \frac{1}{d_{f} \times d_{r}}
-$$
+![](https://latex.codecogs.com/gif.latex?\text{ETX}=\frac{1}{d_{f}\timesd_{r}})
 
-式中，$$\text{ETT}$$为给出的最计算结果，$$B$$为带宽，$$d_{f}$$和$$d_{r}$$分别为正向交付率和反向确认率。
 
-由于每个节点只能通过消息包的投递与周围节点进行信息沟通，因此反向确认率$$d_{r}$$无法直接获得。通过公式：
+式中，![](https://latex.codecogs.com/gif.latex?\text{ETT})为给出的最计算结果，![](https://latex.codecogs.com/gif.latex?B)为带宽，![](https://latex.codecogs.com/gif.latex?d_{f})和![](https://latex.codecogs.com/gif.latex?d_{r})分别为正向交付率和反向确认率。
 
-$$
-d_{f} = \frac{F_{ack,A}}{N_{hello,A}},\ d_{r} = \frac{R_{ack,A}}{F_{ack,A}}
-$$
+由于每个节点只能通过消息包的投递与周围节点进行信息沟通，因此反向确认率![](https://latex.codecogs.com/gif.latex?d_{r})无法直接获得。通过公式：
 
-$$ETT = \frac{N_{hello,A} \times F_{ack,A}}{B \times F_{ack,A} \times R_{ack,A}}
-= \frac{N_{hello,A}}{B \times R_{ack,A}}$$
+![](https://latex.codecogs.com/gif.latex?d_{f}=\frac{F_{ack,A}}{N_{hello,A}},\d_{r}=\frac{R_{ack,A}}{F_{ack,A}})
+
+![](https://latex.codecogs.com/gif.latex?ETT=\frac{N_{hello,A}\timesF_{ack,A}}{B\timesF_{ack,A}\timesR_{ack,A}}
+=\frac{N_{hello,A}}{B\timesR_{ack,A}})
 
 (1)
 
-式中，$$N_{hello,A}$$为本地节点单位时间内广播的Hello包个数，$$F_{ack,A}$$为邻居节点接收到本地节点广播的Hello包个数，$$R_{ack,A}$$为本地节点接收到邻居节点的确认消息个数。
+式中，![](https://latex.codecogs.com/gif.latex?N_{hello,A})为本地节点单位时间内广播的Hello包个数，![](https://latex.codecogs.com/gif.latex?F_{ack,A})为邻居节点接收到本地节点广播的Hello包个数，![](https://latex.codecogs.com/gif.latex?R_{ack,A})为本地节点接收到邻居节点的确认消息个数。
 
-至此，给出了$$\text{ETT}$$的最终计算式，式中所有的数据量都可以由本地节点通过数据包传递的方式直接获取。
+至此，给出了![](https://latex.codecogs.com/gif.latex?\text{ETT})的最终计算式，式中所有的数据量都可以由本地节点通过数据包传递的方式直接获取。
 
 ##### 链路生存周期
 
 在无线认知网络中，由于网络拓扑的不断变化，一条链路可能随时中断，而链路的建立需要满足长期的数据传输需要，这就要求针对每一条链路对其可用的生命周期给出预测。通过收集链路生存周期的历史数据，可以形成一个时间序列：
 
-$$
-Y_{1},\ Y_{2},\ldots{,Y}_{i}
-$$
+![](https://latex.codecogs.com/gif.latex?Y_{1},\Y_{2},\ldots{,Y}_{i})
 
 针对时间序列的预测，采用ARMA模型进行计算。根据时间序列预测思路，时间序列的变化包含两方面的印象因素，即：当前时间之前的序列值和不确定因素（噪声）影响。映射到认知网络的中，可以理解为节点的相对运动等情况是有规律的，而且可以通过节点的前序数据推知发展规律；而现实中还有多种应先因素是无法预先得知的，这回引起数据的随机变化，这部分统一为噪声影响。
 
 因此，时间序列的预测可以表示为：
 
-$$Y_{t} = \beta_{1}x_{1} + \beta_{2}x_{2} + \ldots + \beta_{p}x_{p} + Z$$
+![](https://latex.codecogs.com/gif.latex?Y_{t}=\beta_{1}x_{1}+\beta_{2}x_{2}+\ldots+\beta_{p}x_{p}+Z)(2)
 
-(2)
+![](https://latex.codecogs.com/gif.latex?Y_{t}=\beta_{1}Y_{t-1}+\beta_{2}Y_{t-2}+\ldots+\beta_{p}Y_{t-p}
++Z_{t})(3)
 
-$$Y_{t} = \beta_{1}Y_{t - 1} + \beta_{2}Y_{t - 2} + \ldots + \beta_{p}Y_{t - p}
-+ Z_{t}$$
+![](https://latex.codecogs.com/gif.latex?Y_{t}=\beta_{1}Y_{t-1}+\beta_{2}Y_{t-2}+\ldots+\beta_{p}Y_{t-p}
++\epsilon_{t}+\alpha_{1}\epsilon_{t-1}+\ldots+\alpha_{q}\epsilon_{t-
+q})(4)
 
-(3)
+公式(2)给出了不同影响因素对![](https://latex.codecogs.com/gif.latex?Y)的变化计算，公式(3)给出了基于前序序列计算![](https://latex.codecogs.com/gif.latex?Y)的预测值方法，公式(4)综合二者，给出了最终的预测计算。映射到ARMA模型中，得到：
 
-$$Y_{t} = \beta_{1}Y_{t - 1} + \beta_{2}Y_{t - 2} + \ldots + \beta_{p}Y_{t - p}
-+ \epsilon_{t} + \alpha_{1}\epsilon_{t - 1} + \ldots + \alpha_{q}\epsilon_{t -
-q}$$
-
-(4)
-
-公式(2)给出了不同影响因素对$$Y$$的变化计算，公式(3)给出了基于前序序列计算$$Y$$的预测值方法，公式(4)综合二者，给出了最终的预测计算。映射到ARMA模型中，得到：
-
-$$\hat{Y} = AR(p) + MA(q)$$
-
-(5)
+![](https://latex.codecogs.com/gif.latex?\hat{Y}=AR\left{p}\right+MA\left{q}\right)(5)
 
 这就是ARMA模型的计算方式，其中AR模型的原理是通过时间序列过去时点的线性组合加上白噪声即可预测当前时间点；MA模型的采用当前时间点的值等于过去若干个时间点的预测误差的回归。这样就能综合前序序列信息通过不断调整给出最切合实际的预测结果。
 
@@ -189,35 +121,23 @@ ARMA模型中要求时间序列是平稳序列，认知网络的生存周期从�
 
 在第一部分中，节点稳定性预测被分类为三种状态
 
-$$
-\{,,\}
-$$
+![](https://latex.codecogs.com/gif.latex?\{稳定,次稳定,不稳定\})
 
-因此考察一对节点的稳定性数据就会有$$3 \times 3 =
-9$$中可能的情况出现。因此在这里根据9种历史数据情况，通过K阶马尔科夫模型，可以给出当前发生干扰的概率
+因此考察一对节点的稳定性数据就会有![](https://latex.codecogs.com/gif.latex?3\times{3}=9)中可能的情况出现。因此在这里根据9种历史数据情况，通过K阶马尔科夫模型，可以给出当前发生干扰的概率
 
-$$
-P_{cl(A,B)} = \frac{P_{1}}{P_{2}}
-$$
+![](https://latex.codecogs.com/gif.latex?P_{cl\(A,B\)}=\frac{P_{1}}{P_{2}})
 
-式中，$$P_{1}$$为当前K阶连续记录出现干扰的概率，$$P_{2}$$为当前（K+1）阶出现干扰的概率。
+式中，![](https://latex.codecogs.com/gif.latex?P_{1})为当前K阶连续记录出现干扰的概率，![](https://latex.codecogs.com/gif.latex?P_{2})为当前（K+1）阶出现干扰的概率。
 
 3.1.4影响综合
 
 综合以上讨论，可以给出链路可用的综合指标评价的计算公式：
 
-$$LA_{l} = \alpha ETT_{l} + \frac{\beta}{\text{LA}C_{l}}$$
+![](https://latex.codecogs.com/gif.latex?LA_{l}=\alphaETT_{l}+\frac{\beta}{\text{LA}C_{l}})(6)
 
-(6)
+![](https://latex.codecogs.com/gif.latex?\text{LA}C_{l}=T_{p}\times\left{1-P_{\text{cl}\left{l}\right\right)(7)
 
-$$\text{LA}C_{l} = T_{p} \times \left( 1 - P_{\text{cl}\left( l \right)}
-\right)$$
-
-(7)
-
-$$\cos t_{\text{path}} = \Sigma_{l \in path}LA_{l}$$
-
-(8)
+![](https://latex.codecogs.com/gif.latex?\test{cost}_{\text{path}}=\Sigma_{l\in{path}}LA_{l})(8)
 
 至此，完成链路可用性的计算。
 
@@ -234,16 +154,19 @@ $$\cos t_{\text{path}} = \Sigma_{l \in path}LA_{l}$$
 
 基于以上分析，对Hello消息修改之后的行为流程见Figure 1。
 ![](media/3dc304b4e161a27704fdba84955586db.png)
+
 Figure 1：hello消息流程图
 使用Hello消息就能获得需要的所有信息并建立好相应的数据结构，而最终的目的是为了向链路发现单元提供邻居链路的cost值，使得链路发现过程可以寻找cost最小的链路作为最优链路。计算cost值的过程需要在单位时间更新cost，而路由发现单元调用cost值的时间是随机的，因此需要自行维护保证路由发现单元任何时刻都能都调取到最新的有效cost进行计算。基于这个思路，采用了定时器更新的方式，即设置周期大于Hello周期的定时器时间，在发送一定数量的Hello包之后周期性进行cost值更新，具体流程见Figure 2。
 
 ![](media/21e6ec04d2b5a8d72506464110c2a9ca.png)
+
 Figure 2：整体工作流程示意
 
 #### 数据结构设计
 
 数据结构的整体示意图见Figure 3。
 ![](media/5cd88fd8cf2c365abcf45a8b61c89028.png)
+
 Figure 3：数据结构示意图
 
 ##### Hello 消息
@@ -390,24 +313,18 @@ Hello消息与Hello_ack消息的使用逻辑与功能在前文已经详细阐述
 
 根据前文所述的计算方式以及实现逻辑，实现了一个cal_cost函数用来收集统计各种相关信息，分三个部分计算出统计指标之后统计计算出cost值，实际实施过程中发现，使用原有的公式(1)计算出来的ETT值并没有实际价值，因为Bandwidth的值会很大，导致ETT的最终结果超出了float能够表示的小数范围。因此，实际代码中在ETT的计算公式中加入了Hello消息包的长度，即：
 
-$$
-ETT' = \frac{N_{hello,A} \times size(Hello\_ msg)}{B \times R_{ack,A}}
-$$
+![](https://latex.codecogs.com/gif.latex?\text{ETT'}=\frac{N_{hello,A}\times{size\left{Hello\_ msg}\right}}{B\times{R_{ack,A}}})
 
 这样可以保证计算得出的ETT是在正常取值范围的，而且并不破坏ETT原有的含义。
 
 除此之外，考虑到路由建立过程中需要将cost值相加得到LA，因此需要限制cost值的取值范围。而且，cost值的实际应用应该满足在较小时有较大区分度，而接近最大值时可以适当减小区分度，因此将原有的cost进行了映射：
 
-$$
-\text{cost} = \left\{ \begin{matrix}
-10 \times \sqrt{\text{cost}}\ \ \ \ \ if\ 0 < cost < 100 \\
-100\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ else\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  \\
-\end{matrix} \right.\ 
-$$
+![](media/form.png)
 
 这个函数的图像见Figure 4。
 
 ![](media/6a6b6d03883c9cf3dc0935fc16b70ef6.png)
+
 Figure 4：cost映射曲线
 
 #### neighbor table的维护
@@ -452,6 +369,7 @@ aodv-uu-0.9.6/ns-2/aodv-uu.h
 测试部分分为独立测试和集成测试两部分，独立测试脚本的运行模式见Figure 5。
 
 ![](media/6c2efc136c3ead637b008f84490d3d40.png)
+
 Figure 5：独立脚本流程演示
 
 测试脚本包括四个节点，总共发生了四次节点运动，运动范围会超过通信距离，脚本测试的目的在于能否正确判断邻居节点不可用并从邻居节点表中删除，以及节点恢复可用状态时能否正确恢复节点状态。
@@ -459,6 +377,7 @@ Figure 5：独立脚本流程演示
 综合测试脚本的运行过程见Figure 6。
 
 ![](media/83cee0c6dd8fe4c12613370b274dafa1.png)
+
 Figure 6：综合脚本演示
 
 综合测试脚本场景比较复杂，包括8个正常节点的复杂运动以及两个干扰节点，综合了第一部分的节点稳定性信息之后，测试是否能够正确给出cost值。
