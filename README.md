@@ -309,7 +309,7 @@ Hello消息与Hello_ack消息的使用逻辑与功能在前文已经详细阐述
 
 根据前文所述的计算方式以及实现逻辑，实现了一个cal_cost函数用来收集统计各种相关信息，分三个部分计算出统计指标之后统计计算出cost值，实际实施过程中发现，使用原有的公式(1)计算出来的ETT值并没有实际价值，因为Bandwidth的值会很大，导致ETT的最终结果超出了float能够表示的小数范围。因此，实际代码中在ETT的计算公式中加入了Hello消息包的长度，即：
 
-![](https://latex.codecogs.com/gif.latex?\text{ETT'}=\frac{N_{hello,A}\times{size\left{Hello\_ msg}\right}}{B\times{R_{ack,A}}})
+![](https://latex.codecogs.com/gif.latex?\text{ETT}=\frac{N_{hello,A}\times{size\left(Hello_{msg}\right)}}{B\times{R_{ack,A}}})
 
 这样可以保证计算得出的ETT是在正常取值范围的，而且并不破坏ETT原有的含义。
 
