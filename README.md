@@ -79,8 +79,7 @@ AODV协议工作过程可简单的看作是源节点发起路由请求RREQ，在
 
 ![](https://latex.codecogs.com/gif.latex?d_{f}=\frac{F_{ack,A}}{N_{hello,A}},d_{r}=\frac{R_{ack,A}}{F_{ack,A}})
 
-![](https://latex.codecogs.com/gif.latex?\text{ETT}=\frac{N_{hello,A}\times{F_{ack,A}}}{B\times{F_{ack,A}}\times{R_{ack,A}}}
-=\frac{N_{hello,A}}{B\times{R_{ack,A}}})
+![](https://latex.codecogs.com/gif.latex?\text{ETT}=\frac{N_{hello,A}\times{F_{ack,A}}}{B\times{F_{ack,A}}\times{R_{ack,A}}}=\frac{N_{hello,A}}{B\times{R_{ack,A}}})
 
 (1)
 
@@ -102,8 +101,7 @@ AODV协议工作过程可简单的看作是源节点发起路由请求RREQ，在
 
 ![](https://latex.codecogs.com/gif.latex?Y_{t}=\beta_{1}Y_{t-1}+\beta_{2}Y_{t-2}+\ldots+\beta_{p}Y_{t-p}+Z_{t})(3)
 
-![](https://latex.codecogs.com/gif.latex?Y_{t}=\beta_{1}Y_{t-1}+\beta_{2}Y_{t-2}+\ldots+\beta_{p}Y_{t-p}+\epsilon_{t}+\alpha_{1}\epsilon_{t-1}+\ldots+\alpha_{q}\epsilon_{t-
-q})(4)
+![](https://latex.codecogs.com/gif.latex?Y_{t}=\beta_{1}Y_{t-1}+\beta_{2}Y_{t-2}+\ldots+\beta_{p}Y_{t-p}+\epsilon_{t}+\alpha_{1}\epsilon_{t-1}+\ldots+\alpha_{q}\epsilon_{t-q})(4)
 
 公式(2)给出了不同影响因素对![](https://latex.codecogs.com/gif.latex?Y)的变化计算，公式(3)给出了基于前序序列计算![](https://latex.codecogs.com/gif.latex?Y)的预测值方法，公式(4)综合二者，给出了最终的预测计算。映射到ARMA模型中，得到：
 
@@ -119,7 +117,7 @@ ARMA模型中要求时间序列是平稳序列，认知网络的生存周期从�
 
 在第一部分中，节点稳定性预测被分类为三种状态
 
-![](https://latex.codecogs.com/gif.latex?\{稳定,次稳定,不稳定\})
+![](https://latex.codecogs.com/gif.latex?\text{\{稳定,次稳定,不稳定\}})
 
 因此考察一对节点的稳定性数据就会有![](https://latex.codecogs.com/gif.latex?3\times{3}=9)中可能的情况出现。因此在这里根据9种历史数据情况，通过K阶马尔科夫模型，可以给出当前发生干扰的概率
 
@@ -131,7 +129,7 @@ ARMA模型中要求时间序列是平稳序列，认知网络的生存周期从�
 
 综合以上讨论，可以给出链路可用的综合指标评价的计算公式：
 
-![](https://latex.codecogs.com/gif.latex?LA_{l}=\alphaETT_{l}+\frac{\beta}{\text{LA}C_{l}})(6)
+![](https://latex.codecogs.com/gif.latex?LA_{l}=\alpha{ETT_{l}}+\frac{\beta}{\text{LA}C_{l}})(6)
 
 ![](https://latex.codecogs.com/gif.latex?\text{LA}C_{l}=T_{p}\times\left{1-P_{\text{cl}\left{l}\right\right)(7)
 
