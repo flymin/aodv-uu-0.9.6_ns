@@ -97,15 +97,19 @@ AODV协议工作过程可简单的看作是源节点发起路由请求RREQ，在
 
 因此，时间序列的预测可以表示为：
 
-![](https://latex.codecogs.com/gif.latex?Y_{t}=\beta_{1}x_{1}+\beta_{2}x_{2}+\ldots+\beta_{p}x_{p}+Z)(2)
+![](https://latex.codecogs.com/gif.latex?Y_{t}=\beta_{1}x_{1}+\beta_{2}x_{2}+\ldots+\beta_{p}x_{p}+Z)
+
+(2)
 
 ![](https://latex.codecogs.com/gif.latex?Y_{t}=\beta_{1}Y_{t-1}+\beta_{2}Y_{t-2}+\ldots+\beta_{p}Y_{t-p}+Z_{t})(3)
 
-![](https://latex.codecogs.com/gif.latex?Y_{t}=\beta_{1}Y_{t-1}+\beta_{2}Y_{t-2}+\ldots+\beta_{p}Y_{t-p}+\epsilon_{t}+\alpha_{1}\epsilon_{t-1}+\ldots+\alpha_{q}\epsilon_{t-q})(4)
+![](https://latex.codecogs.com/gif.latex?Y_{t}=\beta_{1}Y_{t-1}+\beta_{2}Y_{t-2}+\ldots+\beta_{p}Y_{t-p}+\epsilon_{t}+\alpha_{1}\epsilon_{t-1}+\ldots+\alpha_{q}\epsilon_{t-q})
+
+(4)
 
 公式(2)给出了不同影响因素对![](https://latex.codecogs.com/gif.latex?Y)的变化计算，公式(3)给出了基于前序序列计算![](https://latex.codecogs.com/gif.latex?Y)的预测值方法，公式(4)综合二者，给出了最终的预测计算。映射到ARMA模型中，得到：
 
-![](https://latex.codecogs.com/gif.latex?\hat{Y}=AR\left{p}\right+MA\left{q}\right)(5)
+![](https://latex.codecogs.com/gif.latex?\hat{Y}=AR\left{p}\right+MA\left{q}\right) (5)
 
 这就是ARMA模型的计算方式，其中AR模型的原理是通过时间序列过去时点的线性组合加上白噪声即可预测当前时间点；MA模型的采用当前时间点的值等于过去若干个时间点的预测误差的回归。这样就能综合前序序列信息通过不断调整给出最切合实际的预测结果。
 
@@ -129,11 +133,11 @@ ARMA模型中要求时间序列是平稳序列，认知网络的生存周期从�
 
 综合以上讨论，可以给出链路可用的综合指标评价的计算公式：
 
-![](https://latex.codecogs.com/gif.latex?LA_{l}=\alpha{ETT_{l}}+\frac{\beta}{\text{LA}C_{l}})(6)
+![](https://latex.codecogs.com/gif.latex?LA_{l}=\alpha{ETT_{l}}+\frac{\beta}{\text{LA}C_{l}}) (6)
 
-![](https://latex.codecogs.com/gif.latex?\text{LA}C_{l}=T_{p}\times\left{1-P_{\text{cl}\left{l}\right\right)(7)
+![](https://latex.codecogs.com/gif.latex?\text{LA}C_{l}=T_{p}\times\left{1-P_{\text{cl}\left{l}\right\right) (7)
 
-![](https://latex.codecogs.com/gif.latex?\test{cost}_{\text{path}}=\Sigma_{l\in{path}}LA_{l})(8)
+![](https://latex.codecogs.com/gif.latex?\test{cost}_{\text{path}}=\Sigma_{l\in{path}}LA_{l}) (8)
 
 至此，完成链路可用性的计算。
 
