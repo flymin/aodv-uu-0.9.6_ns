@@ -70,17 +70,17 @@ AODV协议工作过程可简单的看作是源节点发起路由请求RREQ，在
 
 ![](https://latex.codecogs.com/gif.latex?\text{ETT}=\frac{\text{ETX}}{B})
 
-![](https://latex.codecogs.com/gif.latex?\text{ETX}=\frac{1}{d_{f}\timesd_{r}})
+![](https://latex.codecogs.com/gif.latex?\text{ETX}=\frac{1}{d_{f}\times{d_{r}}})
 
 
 式中，![](https://latex.codecogs.com/gif.latex?\text{ETT})为给出的最计算结果，![](https://latex.codecogs.com/gif.latex?B)为带宽，![](https://latex.codecogs.com/gif.latex?d_{f})和![](https://latex.codecogs.com/gif.latex?d_{r})分别为正向交付率和反向确认率。
 
 由于每个节点只能通过消息包的投递与周围节点进行信息沟通，因此反向确认率![](https://latex.codecogs.com/gif.latex?d_{r})无法直接获得。通过公式：
 
-![](https://latex.codecogs.com/gif.latex?d_{f}=\frac{F_{ack,A}}{N_{hello,A}},\d_{r}=\frac{R_{ack,A}}{F_{ack,A}})
+![](https://latex.codecogs.com/gif.latex?d_{f}=\frac{F_{ack,A}}{N_{hello,A}},d_{r}=\frac{R_{ack,A}}{F_{ack,A}})
 
-![](https://latex.codecogs.com/gif.latex?ETT=\frac{N_{hello,A}\timesF_{ack,A}}{B\timesF_{ack,A}\timesR_{ack,A}}
-=\frac{N_{hello,A}}{B\timesR_{ack,A}})
+![](https://latex.codecogs.com/gif.latex?\text{ETT}=\frac{N_{hello,A}\times{F_{ack,A}}}{B\times{F_{ack,A}}\times{R_{ack,A}}}
+=\frac{N_{hello,A}}{B\times{R_{ack,A}}})
 
 (1)
 
@@ -100,11 +100,9 @@ AODV协议工作过程可简单的看作是源节点发起路由请求RREQ，在
 
 ![](https://latex.codecogs.com/gif.latex?Y_{t}=\beta_{1}x_{1}+\beta_{2}x_{2}+\ldots+\beta_{p}x_{p}+Z)(2)
 
-![](https://latex.codecogs.com/gif.latex?Y_{t}=\beta_{1}Y_{t-1}+\beta_{2}Y_{t-2}+\ldots+\beta_{p}Y_{t-p}
-+Z_{t})(3)
+![](https://latex.codecogs.com/gif.latex?Y_{t}=\beta_{1}Y_{t-1}+\beta_{2}Y_{t-2}+\ldots+\beta_{p}Y_{t-p}+Z_{t})(3)
 
-![](https://latex.codecogs.com/gif.latex?Y_{t}=\beta_{1}Y_{t-1}+\beta_{2}Y_{t-2}+\ldots+\beta_{p}Y_{t-p}
-+\epsilon_{t}+\alpha_{1}\epsilon_{t-1}+\ldots+\alpha_{q}\epsilon_{t-
+![](https://latex.codecogs.com/gif.latex?Y_{t}=\beta_{1}Y_{t-1}+\beta_{2}Y_{t-2}+\ldots+\beta_{p}Y_{t-p}+\epsilon_{t}+\alpha_{1}\epsilon_{t-1}+\ldots+\alpha_{q}\epsilon_{t-
 q})(4)
 
 公式(2)给出了不同影响因素对![](https://latex.codecogs.com/gif.latex?Y)的变化计算，公式(3)给出了基于前序序列计算![](https://latex.codecogs.com/gif.latex?Y)的预测值方法，公式(4)综合二者，给出了最终的预测计算。映射到ARMA模型中，得到：
