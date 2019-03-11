@@ -79,9 +79,7 @@ AODV协议工作过程可简单的看作是源节点发起路由请求RREQ，在
 
 ![](https://latex.codecogs.com/gif.latex?d_{f}=\frac{F_{ack,A}}{N_{hello,A}},d_{r}=\frac{R_{ack,A}}{F_{ack,A}})
 
-![](https://latex.codecogs.com/gif.latex?\text{ETT}=\frac{N_{hello,A}\times{F_{ack,A}}}{B\times{F_{ack,A}}\times{R_{ack,A}}}=\frac{N_{hello,A}}{B\times{R_{ack,A}}})
-
-(1)
+![](https://latex.codecogs.com/gif.latex?\text{ETT}=\frac{N_{hello,A}\times{F_{ack,A}}}{B\times{F_{ack,A}}\times{R_{ack,A}}}=\frac{N_{hello,A}}{B\times{R_{ack,A}}}) (1)
 
 式中，![](https://latex.codecogs.com/gif.latex?N_{hello,A})为本地节点单位时间内广播的Hello包个数，![](https://latex.codecogs.com/gif.latex?F_{ack,A})为邻居节点接收到本地节点广播的Hello包个数，![](https://latex.codecogs.com/gif.latex?R_{ack,A})为本地节点接收到邻居节点的确认消息个数。
 
@@ -97,15 +95,11 @@ AODV协议工作过程可简单的看作是源节点发起路由请求RREQ，在
 
 因此，时间序列的预测可以表示为：
 
-![](https://latex.codecogs.com/gif.latex?Y_{t}=\beta_{1}x_{1}+\beta_{2}x_{2}+\ldots+\beta_{p}x_{p}+Z)
-
-(2)
+![](https://latex.codecogs.com/gif.latex?Y_{t}=\beta_{1}x_{1}+\beta_{2}x_{2}+\ldots+\beta_{p}x_{p}+Z) (2)
 
 ![](https://latex.codecogs.com/gif.latex?Y_{t}=\beta_{1}Y_{t-1}+\beta_{2}Y_{t-2}+\ldots+\beta_{p}Y_{t-p}+Z_{t})(3)
 
-![](https://latex.codecogs.com/gif.latex?Y_{t}=\beta_{1}Y_{t-1}+\beta_{2}Y_{t-2}+\ldots+\beta_{p}Y_{t-p}+\epsilon_{t}+\alpha_{1}\epsilon_{t-1}+\ldots+\alpha_{q}\epsilon_{t-q})
-
-(4)
+![](https://latex.codecogs.com/gif.latex?Y_{t}=\beta_{1}Y_{t-1}+\beta_{2}Y_{t-2}+\ldots+\beta_{p}Y_{t-p}+\epsilon_{t}+\alpha_{1}\epsilon_{t-1}+\ldots+\alpha_{q}\epsilon_{t-q}) (4)
 
 公式(2)给出了不同影响因素对![](https://latex.codecogs.com/gif.latex?Y)的变化计算，公式(3)给出了基于前序序列计算![](https://latex.codecogs.com/gif.latex?Y)的预测值方法，公式(4)综合二者，给出了最终的预测计算。映射到ARMA模型中，得到：
 
